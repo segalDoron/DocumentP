@@ -80,13 +80,14 @@
   [ login ]*/
   
   .limiter {
+      min-height: 80vh;
       width: 100%;
       margin: 0 auto;
     }
   
     .container-login100 {
       width: 100%;  
-      min-height: 100vh;
+      min-height: 60vh;
       display: -webkit-box;
       display: -webkit-flex;
       display: -moz-box;
@@ -119,8 +120,7 @@
       font-size: 30px;
       color: #403866;
       line-height: 1.2;
-      text-transform: uppercase;
-      text-align: center;
+      text-transform: uppercase;  
     
       width: 100%;
       display: block;
@@ -202,16 +202,6 @@
       transform: scale(1);
     }
   
-    .container-login100-form-btn {
-      width: 100%;
-      display: -webkit-box;
-      display: -webkit-flex;
-      display: -moz-box;
-      display: -ms-flexbox;
-      display: flex;
-      flex-wrap: wrap;
-    }
-  
     .login100-form-btn {
       font-family: Ubuntu-Bold;
       font-size: 16px;
@@ -219,15 +209,10 @@
       line-height: 1.2;
       text-transform: uppercase;
     
-      display: -webkit-box;
-      display: -webkit-flex;
-      display: -moz-box;
-      display: -ms-flexbox;
-      display: flex;
       justify-content: center;
       align-items: center;
       padding: 0 20px;
-      width: 100%;
+      width: 70%;
       height: 62px;
       background-color: #827ffe;
       border-radius: 3px;
@@ -301,19 +286,55 @@
         opacity: 1;
       }
     }
+    
+    @media (min-width:576px){
+      .wrap-input100{max-width:100%}
+      .input100{
+        max-width:100%;
+        text-align: center;
+      }
+      .focus-input100{max-width:100%}
+      .login100-form-btn{
+        max-width:150px;
+        display: flex;
+      }
+    }
+    @media (min-width:768px){
+      .wrap-input100{max-width:100%}
+      .input100{
+        max-width:100%;
+        text-align: center;
+      }
+      .focus-input100{max-width:100%}
+      .login100-form-btn{
+        max-width:250px;
+        display: flex;
+      }
 
-    @media (min-width:576px){.wrap-input100{max-width:150px}}
-    @media (min-width:768px){.wrap-input100{max-width:250px}}
-    @media (min-width:992px){.wrap-input100{max-width:350px}}
-    @media (min-width:1200px){.wrap-input100{max-width:390px}}
-    @media (min-width:576px){.input100{max-width:150px}}
-    @media (min-width:768px){.input100{max-width:250px}}
-    @media (min-width:992px){.input100{max-width:350px}}
-    @media (min-width:1200px){.input100{max-width:390px}}
-    @media (min-width:576px){.focus-input100{max-width:150px}}
-    @media (min-width:768px){.focus-input100{max-width:250px}}
-    @media (min-width:992px){.focus-input100{max-width:350px}}
-    @media (min-width:1200px){.focus-input100{max-width:390px}}
-    .wrap-input100{min-width:390px!important}
+    }
+    @media (min-width:992px){
+      .wrap-input100{max-width:100%}
+      .input100{
+        max-width:100%;
+        text-align: left;
+      }
+      .focus-input100{max-width:100%}
+      .login100-form-btn{
+        max-width:350px;
+        display: inline;
+      }
+    }
+    @media (min-width:1200px){
+      .wrap-input100{max-width:100%}
+      .input100{
+        max-width:100%;
+        text-align: left;
+      }
+      .focus-input100{max-width:100%}
+      .login100-form-btn{
+        max-width:390px;
+        display: inline;
+      }        
+    } 
    
    

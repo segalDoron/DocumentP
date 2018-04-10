@@ -55,7 +55,7 @@ class LoginPage extends React.Component {
         const passwordClass = 'wrap-input100 validate-input m-b-16 ' + passwordValid;
 
         return (
-            <div>        
+            <div>
                 <div className="limiter" name="form" onSubmit={this.handleSubmit}>
                     <div className="container-login100">
                         <div className="wrap-login100 p-t-50 p-b-90">
@@ -75,18 +75,19 @@ class LoginPage extends React.Component {
                                     <input className="input100" type="password" name="password" placeholder="Password" onChange={this.handleChange} />
                                     <span className="focus-input100"></span>
                                 </div>
-
-                                <div className="form-group container-login100-form-btn m-t-17">
-                                    <button className="login100-form-btn">
-                                        Login
-						        </button>
+                               
+                                <div className="form-group" style={{ width: '100%' }}>
+                                    <button className="login100-form-btn">Login</button>
+                                    {loggingIn &&
+                                        <img src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />
+                                    }
                                     <Link to="/register" className="btn btn-link">Register</Link>
                                 </div>
                             </form>
                         </div>
                     </div>
                 </div>
-            </div>           
+            </div>
         );
     }
 }
