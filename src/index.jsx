@@ -5,6 +5,7 @@ import { Provider } from 'react-redux';
 import { store } from './_helpers';
 import { App } from './App';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'antd/dist/antd.css';
 
 
 // setup fake backend
