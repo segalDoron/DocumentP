@@ -3,23 +3,31 @@ import { Link } from 'react-router-dom';
 
 class NBar extends React.Component {
   constructor(props) {
-    super(props);    
+    super(props);
   }
   render() {
     return (
-      <div>
-        <nav className="navbar navbar-light bg-light">
-          <form className="form-inline">
-            <button className="btn btn-sm btn-outline-secondary m-r-15" type="button">First button</button>
-            <button className="btn btn-sm btn-outline-secondary m-r-15" type="button">Second button</button>
-            <button className="btn btn-sm btn-outline-secondary m-r-15" type="button">Third button</button>
-            <button className="btn btn-sm btn-outline-secondary m-r-15" type="button">Fourth button</button>
-          </form>
-          <form className="form-inline">
+      <nav className="navbar navbar-dark sticky-top bg-secondary flex-md-nowrap p-0">
+        <form className="form-inline navbar-brand col-sm-3 col-md-2 mr-0">
+          <span className="badge badge-light  m-r-15">
+            <button type="button" style={{ fontWeight: '700' }}>First button</button>
+          </span>
+          <span className="badge badge-light  m-r-15">
+            <button type="button" style={{ fontWeight: '700' }}>Second button</button>
+          </span>
+          <span className="badge badge-light  m-r-15">
+            <button type="button" style={{ fontWeight: '700' }}>Third button</button>
+          </span>
+          <span className="badge badge-light  m-r-15">
+            <button type="button" style={{ fontWeight: '700' }}>Fourth button</button>
+          </span>
+        </form>
+        <ul className="navbar-nav px-3">
+          <li className="nav-item text-nowrap">
             <Link to="/login">Logout</Link>
-          </form>
-        </nav>
-      </div>
+          </li>
+        </ul>
+      </nav>
     );
   }
 }

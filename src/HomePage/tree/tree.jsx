@@ -12,6 +12,7 @@ const y = 3;
 const z = 1;
 const gData = [];
 
+// creat tree fake data
 const generateData = (_level, _preKey, _tns) => {
   const preKey = _preKey || '0';
   const tns = _tns || gData;
@@ -35,6 +36,7 @@ const generateData = (_level, _preKey, _tns) => {
 };
 generateData(z);
 
+// generate list for Search bar
 const dataList = [];
 const generateList = (data) => {
   for (let i = 0; i < data.length; i++) {
@@ -48,6 +50,7 @@ const generateList = (data) => {
 };
 generateList(gData);
 
+// generate key for Search bar
 const getParentKey = (key, tree) => {
   let parentKey;
   for (let i = 0; i < tree.length; i++) {
@@ -75,13 +78,12 @@ class TreeComponent extends React.Component {
       // expandedKeys: ['0-0', '0-0-0', '0-0-0-0'],
     }
 
-    this.onDragEnter = this.onDragEnter.bind(this);
-    this.onDrop = this.onDrop.bind(this);
     this.onSelect = this.onSelect.bind(this);
     this.onExpand = this.onExpand.bind(this);
     this.onChange = this.onChange.bind(this);
   }
 
+  // Search bar input onChange
   onChange(e) {
     const value = e.target.value;
     const expandedKeys = dataList.map((item) => {
@@ -110,55 +112,7 @@ class TreeComponent extends React.Component {
     dispatch(treeActions.nodeSelected(selectedKeys, info));
   }
 
-  onDragEnter(info) {
-    console.log(info);
-  }
 
-  onDrop(info) {
-    console.log(info);
-    const dropKey = info.node.props.eventKey;
-    const dragKey = info.dragNode.props.eventKey;
-    const dropPos = info.node.props.pos.split('-');
-    const dropPosition = info.dropPosition - Number(dropPos[dropPos.length - 1]);
-    // const dragNodesKeys = info.dragNodesKeys;
-    const loop = (data, key, callback) => {
-      data.forEach((item, index, arr) => {
-        if (item.key === key) {
-          return callback(item, index, arr);
-        }
-        if (item.children) {
-          return loop(item.children, key, callback);
-        }
-      });
-    };
-    const data = [...this.state.gData];
-    let dragObj;
-    loop(data, dragKey, (item, index, arr) => {
-      arr.splice(index, 1);
-      dragObj = item;
-    });
-    if (info.dropToGap) {
-      let ar;
-      let i;
-      loop(data, dropKey, (item, index, arr) => {
-        ar = arr;
-        i = index;
-      });
-      if (dropPosition === -1) {
-        ar.splice(i, 0, dragObj);
-      } else {
-        ar.splice(i + 1, 0, dragObj);
-      }
-    } else {
-      loop(data, dropKey, (item) => {
-        item.children = item.children || [];
-        item.children.push(dragObj);
-      });
-    }
-    this.setState({
-      gData: data,
-    });
-  }
 
 
   render() {
@@ -184,22 +138,60 @@ class TreeComponent extends React.Component {
       return <TreeNode key={item.key} title={title} />;
     });
     return (
-      <div>
-        <Search style={{ marginBottom: 8 }} placeholder="Search" onChange={this.onChange} />
-        <Tree
-          className="draggable-tree"
-          showLine
-          expandedKeys={expandedKeys}
-          draggable
-          onDragEnter={this.onDragEnter}
-          onDrop={this.onDrop}
-          onSelect={this.onSelect}
-          onExpand={this.onExpand}
-          autoExpandParent={autoExpandParent}
-        >
-          {loop(this.state.gData)}
-        </Tree>
-      </div>
+
+      <nav className="col-md-2 d-none d-md-block sidebar">
+        <div className="sidebar-sticky">
+          <ul className="nav flex-column">
+
+            {/* add this style to make search bar position fix */}
+            {/* style={{ marginBottom: 8, position: 'sticky', top: '50px', zIndex: '1020' }} */}
+            <Search placeholder="Search" style={{ marginTop: '10px' }} onChange={this.onChange} />
+            <Tree
+              className="draggable-tree"
+              showLine
+              expandedKeys={expandedKeys}
+              onSelect={this.onSelect}
+              onExpand={this.onExpand}
+              autoExpandParent={autoExpandParent}
+            >
+              {loop(this.state.gData)}
+            </Tree>
+          </ul>
+          {/* Extra info and links */}
+          <h6 className="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+            <span>Saved reports</span>
+            <a className="d-flex align-items-center text-muted" href="#">
+
+            </a>
+          </h6>
+          <ul className="nav flex-column mb-2">
+            <li className="nav-item">
+              <a className="nav-link" href="#">
+
+                Current month
+                                      </a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link" href="#">
+
+                Last quarter
+                                         </a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link" href="#">
+
+                Social engagement
+                                        </a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link" href="#">
+
+                Year-end sale
+                                       </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
     );
   }
 }
@@ -208,8 +200,8 @@ function mapStateToProps(state) {
   const { users, authentication } = state;
   const { user } = authentication;
   return {
-      user,
-      users
+    user,
+    users
   };
 }
 

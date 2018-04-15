@@ -2,7 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import NBar from './navBar/navBar';
-import {TreeComponent} from './tree/tree';
+import { TreeComponent } from './tree/tree';
+import { MainViewComponent } from './mainView/mainView';
 
 import { userActions } from '../_actions';
 
@@ -19,17 +20,14 @@ class HomePage extends React.Component {
         const { user, users } = this.props;
         return (
             <div>
-                <div>
-                    <NBar />
-                </div>
+                <NBar />
                 <div className="container-fluid">
-                    <div className="row p-t-20">
-                        <div className="col-6 col-sm-2 light tree-container"> <TreeComponent /></div>                       
-                        <div className="col-6 col-sm-10 light tree-container">.col-6 .col-sm-10</div>
-                        {/* <div class="w-100 d-none d-md-block"></div> */}
+                    <div className="row">
+                        <TreeComponent />
+                        <MainViewComponent />
                     </div>
-                </div>               
-            </div>
+                </div>
+            </div >
         );
     }
 }

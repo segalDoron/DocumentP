@@ -289,6 +289,12 @@
       visibility: visible;
       opacity: 1;
     }
+
+    .sidebar-sticky{
+      position: sticky;
+      top: 45px;
+      z-index: 1020;
+    }
     
     @media (max-width: 992px) {
       .alert-validate::before {
@@ -346,5 +352,11 @@
         display: inline;
       }        
     } 
-   
-   
+
+ /*////////////////text editor////////////////*/
+ .text-editor-size{
+    width: 80vw;
+    padding-top: 10px;
+    padding-left: 10px;
+    padding-bottom: 70px;
+ }
