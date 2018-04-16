@@ -1,161 +1,146 @@
 
 import React from 'react';
 import { connect } from 'react-redux';
-import { Tree, Input } from 'antd';
 import { treeActions } from '../../_actions';
 
-const TreeNode = Tree.TreeNode;
-const Search = Input.Search;
+import { Treebeard, decorators } from 'react-treebeard';
+import * as filters from '../../_services/treeSreachFilter';
 
-const x = 10;
-const y = 3;
-const z = 1;
-const gData = [];
 
-// creat tree fake data
-const generateData = (_level, _preKey, _tns) => {
-  const preKey = _preKey || '0';
-  const tns = _tns || gData;
-
-  const children = [];
-  for (let i = 0; i < x; i++) {
-    const key = `${preKey}-${i}`;
-    tns.push({ title: key, key });
-    if (i < y) {
-      children.push(key);
+// Create tree fake date
+const data = {
+  name: 'root',
+  toggled: true,
+  children: [
+    {
+      name: 'parent',
+      children: [
+        { name: 'child1' },
+        { name: 'child2' }
+      ]
+    },
+    {
+      name: 'loading parent',
+      loading: true,
+      children: []
+    },
+    {
+      name: 'parent',
+      children: [
+        {
+          name: 'nested parent',
+          children: [
+            {
+              name: 'nested child 1',
+              children: [
+                { name: 'nested child 1' },
+                { name: 'nested child 2' }
+              ]
+            },
+            { name: 'nested child 2' }
+          ]
+        }
+      ]
     }
-  }
-  if (_level < 0) {
-    return tns;
-  }
-  const level = _level - 1;
-  children.forEach((key, index) => {
-    tns[index].children = [];
-    return generateData(level, key, tns[index].children);
-  });
+  ]
 };
-generateData(z);
 
-// generate list for Search bar
-const dataList = [];
-const generateList = (data) => {
-  for (let i = 0; i < data.length; i++) {
-    const node = data[i];
-    const key = node.key;
-    dataList.push({ key, title: key });
-    if (node.children) {
-      generateList(node.children, node.key);
-    }
-  }
-};
-generateList(gData);
+// Example: Customising The Header Decorator To Include Icons
+// decorators.Header = ({ node }) => {
+//   const iconType = node.children ? 'folder' : 'file-text';
+//   const iconClass = `fa fa-${iconType}`;
+//   const iconStyle = { marginRight: '5px' };
 
-// generate key for Search bar
-const getParentKey = (key, tree) => {
-  let parentKey;
-  for (let i = 0; i < tree.length; i++) {
-    const node = tree[i];
-    if (node.children) {
-      if (node.children.some(item => item.key === key)) {
-        parentKey = node.key;
-      } else if (getParentKey(key, node.children)) {
-        parentKey = getParentKey(key, node.children);
-      }
-    }
-  }
-  return parentKey;
-};
+//   return (
+//     <div>
+//       <div>
+//         <i className={iconClass} style={iconStyle} />
+//         {node.name}
+//       </div>
+//     </div>
+//   );
+// };
+
+
+//OutPut the tree array object for dubag use
+// class NodeViewer extends React.Component {
+//   render() {
+//     const HELP_MSG = 'Select A Node To See Its Data Structure Here...';
+//     let json = JSON.stringify(this.props.node, null, 4);
+
+//     if (!json) {
+//       json = HELP_MSG;
+//     }
+
+//     return <div>{json}</div>;
+//   }
+// }
+
 
 class TreeComponent extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      expandedKeys: [],
-      searchValue: '',
-      autoExpandParent: true,
-      gData,
-      // expandedKeys: ['0-0', '0-0-0', '0-0-0-0'],
+    this.state = { data };
+    this.onToggle = this.onToggle.bind(this);
+
+  }
+
+  onToggle(node, toggled) {
+    const { cursor } = this.state;
+
+    if (cursor) {
+      cursor.active = false;
     }
 
-    this.onSelect = this.onSelect.bind(this);
-    this.onExpand = this.onExpand.bind(this);
-    this.onChange = this.onChange.bind(this);
+    node.active = true;
+    if (node.children) {
+      node.toggled = toggled;
+    }
+
+    this.setState({ cursor: node });
   }
 
-  // Search bar input onChange
-  onChange(e) {
-    const value = e.target.value;
-    const expandedKeys = dataList.map((item) => {
-      if (item.key.indexOf(value) > -1) {
-        return getParentKey(item.key, gData);
-      }
-      return null;
-    }).filter((item, i, self) => item && self.indexOf(item) === i);
-    this.setState({
-      expandedKeys,
-      searchValue: value,
-      autoExpandParent: true,
-    });
+  onFilterMouseUp(e) {
+    const filter = e.target.value.trim();
+    if (!filter) {
+      return this.setState({ data });
+    }
+    var filtered = filters.filterTree(data, filter);
+    filtered = filters.expandFilteredNodes(filtered, filter);
+    this.setState({ data: filtered });
   }
-
-  onExpand(expandedKeys) {
-    this.setState({
-      expandedKeys,
-      autoExpandParent: false,
-    });
-  }
-
-  onSelect(selectedKeys, info) {
-    const { dispatch } = this.props;
-    console.log('selected', selectedKeys, info);
-    dispatch(treeActions.nodeSelected(selectedKeys, info));
-  }
-
-
-
 
   render() {
-    const { searchValue, expandedKeys, autoExpandParent } = this.state;
-    const loop = data => data.map((item) => {
-      const index = item.key.indexOf(searchValue);
-      const beforeStr = item.key.substr(0, index);
-      const afterStr = item.key.substr(index + searchValue.length);
-      const title = index > -1 ? (
-        <span>
-          {beforeStr}
-          <span style={{ color: '#f50' }}>{searchValue}</span>
-          {afterStr}
-        </span>
-      ) : <span>{item.key}</span>;
-      if (item.children) {
-        return (
-          <TreeNode key={item.key} title={title}>
-            {loop(item.children)}
-          </TreeNode>
-        );
-      }
-      return <TreeNode key={item.key} title={title} />;
-    });
+
+    const { data: stateData, cursor } = this.state;
     return (
 
-      <nav className="col-md-2 d-none d-md-block sidebar">
+      <nav className="col-md-2 d-none d-md-block sidebar pt-3">
         <div className="sidebar-sticky">
           <ul className="nav flex-column">
+            <div>
+              <div className="input-group">
+                <span className="input-group-addon">
+                  <i className="fa fa-search" />
+                </span>
+                <input className="form-control"
+                  onKeyUp={this.onFilterMouseUp.bind(this)}
+                  placeholder="Search the tree..."
+                  type="text" />
+              </div>
+            </div>
+            <div>
+              <Treebeard data={stateData}
+                // decorators={decorators}
+                onToggle={this.onToggle} />
+            </div>
 
-            {/* add this style to make search bar position fix */}
-            {/* style={{ marginBottom: 8, position: 'sticky', top: '50px', zIndex: '1020' }} */}
-            <Search placeholder="Search" style={{ marginTop: '10px' }} onChange={this.onChange} />
-            <Tree
-              className="draggable-tree"
-              showLine
-              expandedKeys={expandedKeys}
-              onSelect={this.onSelect}
-              onExpand={this.onExpand}
-              autoExpandParent={autoExpandParent}
-            >
-              {loop(this.state.gData)}
-            </Tree>
+            {/* <div>
+              <NodeViewer node={cursor} />
+            </div> */}
+
+
           </ul>
           {/* Extra info and links */}
           <h6 className="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
