@@ -292,7 +292,7 @@
 
     .sidebar-sticky{
       position: sticky;
-      top: 45px;
+      top: 60px;
       z-index: 1020;
     }
     
