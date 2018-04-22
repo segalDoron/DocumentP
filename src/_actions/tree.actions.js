@@ -4,10 +4,10 @@ export const treeActions = {
     nodeSelected
 };
 
-function nodeSelected(selectedKeys, info) {
+function nodeSelected(treeNodeName) {
     return dispatch => {
-        dispatch(setSelection({ selectedKeys }));       
+        dispatch(setSelection( treeNodeName ));       
     };
 
-    function setSelection(selectedKeys) { return { type: treeConstants.TREE_NODE_SELECTED, selectedKeys } }
+    function setSelection(treeNodeName) { return { type: treeConstants.TREE_NODE_SELECTED, treeNodeName } }
 }

@@ -12,12 +12,12 @@
   "dependencies": {
     "axios": "^0.18.0",
     "bootstrap": "^4.0.0",
-    "file-loader": "^1.1.11",
     "history": "^4.6.3",
     "jquery": "^3.3.1",
     "popper.js": "^1.14.3",
     "react": "^16.3.1",
     "react-dom": "^16.3.1",
+    "react-icons": "^2.2.7",
     "react-quill": "^1.2.7",
     "react-redux": "^5.0.5",
     "react-router-dom": "^4.1.2",

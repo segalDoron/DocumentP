@@ -45,36 +45,39 @@ const data = {
   ]
 };
 
-// Example: Customising The Header Decorator To Include Icons
-// decorators.Header = ({ node }) => {
-//   const iconType = node.children ? 'folder' : 'file-text';
-//   const iconClass = `fa fa-${iconType}`;
-//   const iconStyle = { marginRight: '5px' };
+/*Example: Customising The Header Decorator To Include Icons
+decorators.Header = ({ node }) => {
+  const iconType = node.children ? true : false;
+  const iconStyle = { marginRight: '5px' };
 
-//   return (
-//     <div>
-//       <div>
-//         <i className={iconClass} style={iconStyle} />
-//         {node.name}
-//       </div>
-//     </div>
-//   );
-// };
+  return (
+    <div>
+      <div>
+        <i style={iconStyle} />
+        {iconType && <FaAngleRight />}
+        {node.name}
+      </div>
+    </div>
+  );
+};
+*/
 
 
-//OutPut the tree array object for dubag use
-// class NodeViewer extends React.Component {
-//   render() {
-//     const HELP_MSG = 'Select A Node To See Its Data Structure Here...';
-//     let json = JSON.stringify(this.props.node, null, 4);
+/*
+OutPut the tree array object for dubag use
+class NodeViewer extends React.Component {
+  render() {
+    const HELP_MSG = 'Select A Node To See Its Data Structure Here...';
+    let json = JSON.stringify(this.props.node, null, 4);
 
-//     if (!json) {
-//       json = HELP_MSG;
-//     }
+    if (!json) {
+      json = HELP_MSG;
+    }
 
-//     return <div>{json}</div>;
-//   }
-// }
+    return <div>{json}</div>;
+  }
+}
+*/
 
 
 class TreeComponent extends React.Component {
@@ -83,9 +86,11 @@ class TreeComponent extends React.Component {
 
     this.state = { data };
     this.onToggle = this.onToggle.bind(this);
+    this.createTree = this.createTree.bind(this);
 
   }
 
+  // on node click
   onToggle(node, toggled) {
     const { cursor } = this.state;
 
@@ -99,8 +104,12 @@ class TreeComponent extends React.Component {
     }
 
     this.setState({ cursor: node });
+
+    const { dispatch } = this.props;
+    dispatch(treeActions.nodeSelected(node.name));
   }
 
+  // tree search filter
   onFilterMouseUp(e) {
     const filter = e.target.value.trim();
     if (!filter) {
@@ -111,11 +120,17 @@ class TreeComponent extends React.Component {
     this.setState({ data: filtered });
   }
 
+  createTree(data) {
+    const dataTemp = {};
+    data.forEach((headLine, index) => {
+    })
+  }
+
   render() {
 
     const { data: stateData, cursor } = this.state;
+    const data1 = this.createTree(this.props.treeDate);
     return (
-
       <nav className="col-md-2 d-none d-md-block sidebar pt-3">
         <div className="sidebar-sticky">
           <ul className="nav flex-column">
@@ -140,41 +155,42 @@ class TreeComponent extends React.Component {
               <NodeViewer node={cursor} />
             </div> */}
 
-
           </ul>
-          {/* Extra info and links */}
-          <h6 className="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-            <span>Saved reports</span>
-            <a className="d-flex align-items-center text-muted" href="#">
+          <div>
+            {/* Extra info and links */}
+            <h6 className="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+              <span>Saved reports</span>
+              <a className="d-flex align-items-center text-muted" href="#">
 
-            </a>
-          </h6>
-          <ul className="nav flex-column mb-2">
-            <li className="nav-item">
-              <a className="nav-link" href="#">
+              </a>
+            </h6>
+            <ul className="nav flex-column mb-2">
+              <li className="nav-item">
+                <a className="nav-link" href="#">
 
-                Current month
+                  Current month
                                       </a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link" href="#">
+              </li>
+              <li className="nav-item">
+                <a className="nav-link" href="#">
 
-                Last quarter
+                  Last quarter
                                          </a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link" href="#">
+              </li>
+              <li className="nav-item">
+                <a className="nav-link" href="#">
 
-                Social engagement
+                  Social engagement
                                         </a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link" href="#">
+              </li>
+              <li className="nav-item">
+                <a className="nav-link" href="#">
 
-                Year-end sale
+                  Year-end sale
                                        </a>
-            </li>
-          </ul>
+              </li>
+            </ul>
+          </div>
         </div>
       </nav>
     );
@@ -182,11 +198,10 @@ class TreeComponent extends React.Component {
 }
 
 function mapStateToProps(state) {
-  const { users, authentication } = state;
-  const { user } = authentication;
+  const { tree } = state;
+  const treeDate = [];
   return {
-    user,
-    users
+    treeDate
   };
 }
 
