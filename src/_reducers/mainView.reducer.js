@@ -6,7 +6,7 @@ export function mainView(state = {}, action) {
       return{
         isSelected:true,
         selected: action.selected        
-      };
+      };      
     default:
       return state
   }

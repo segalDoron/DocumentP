@@ -1,7 +1,6 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
-import NBar from './navBar/navBar';
+import { NBarComponent } from './navBar/navBar';
 import { TreeComponent } from './tree/tree';
 import { MainViewComponent } from './mainView/mainView';
 
@@ -15,12 +14,12 @@ class HomePage extends React.Component {
     handleDeleteUser(id) {
         return (e) => this.props.dispatch(userActions.delete(id));
     }
-
+    
     render() {
         const { user, users } = this.props;
         return (
             <div>
-                <NBar />
+                <NBarComponent />
                 <div className="container-fluid">
                     <div className="row">
                         <TreeComponent />

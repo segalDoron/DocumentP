@@ -1,8 +1,8 @@
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { connect } from 'react-redux';
-import { mainViewActions } from '../../_actions';
 import ReactQuill from 'react-quill';
+import { navBarActions, mainViewActions } from '../../_actions';
 import { mainViewConstants, CUSTOMIMAGEBUTTON } from '../../_constants'
 import $ from 'jquery';
 
@@ -11,51 +11,64 @@ const { Quill, Mixin, Toolbar, Delta } = ReactQuill;
 class MainViewComponent extends React.Component {
     constructor(props) {
         super(props)
-        this.state = { text: "" } // You can also pass a Quill Delta here
+        this.state = {
+            text: "",
+            nodeSelected: ""
+        }
+
+        this.dispatch = this.props.dispatch;
 
         // create quill ref
         this.quillRef = null;
         this.reactQuillRef = null;
 
+        // bind functions
         this.handleChange = this.handleChange.bind(this)
         this.customButtonAction = this.customButtonAction.bind(this);
         this.attachQuillRefs = this.attachQuillRefs.bind(this);
+        this.save = this.save.bind(this);
     }
 
 
+    /* update component on props change */
     componentWillReceiveProps(nextProps, nextState) {
 
-        const quill = this.reactQuillRef.getEditor();
-        var length = quill.getLength();
-        var text = quill.getText(0, length);
-        let a = text.indexOf(nextProps.selectedTreeNode);
-        a = a == -1 || a == 0 ? 0 : a;
-        quill.setSelection(a, 0);
+        const selected = this.state.nodeSelected
+        // set cursor on header selected
+        if (nextProps.selectedTreeNode !== selected) {
+            const quill = this.reactQuillRef.getEditor();
+            var length = quill.getLength();
+            var text = quill.getText(0, length);
+            let a = text.indexOf(nextProps.selectedTreeNode);
+            a = a == -1 || a == 0 ? 0 : a;
+            quill.setSelection(a, 0);
+            this.setState({ nodeSelected: nextProps.selectedTreeNode })
+        }
+
+        // invoke save method
+        if (nextProps.isSaved == true) {
+            this.save();
+            this.dispatch(navBarActions.isSaved(false));
+        }
 
 
-        // use jquery to scroll
-        // var target = $("#" + nextProps.selectedTreeNode);
-        // if (target.length) {
-        //     event.preventDefault();
-        //     $('html, body').stop().animate({
-        //         scrollTop: target.offset().top - 40
-        //     }, 300);
-        // }
+        /*use jquery to scroll
+            var target = $("#" + nextProps.selectedTreeNode);
+            if (target.length) {
+                event.preventDefault();
+                $('html, body').stop().animate({
+                    scrollTop: target.offset().top - 40
+                }, 300);
+            }
+        */
 
         return false;
     }
 
     componentDidMount() {
-
-        // create quill ref
-        this.attachQuillRefs();
-
-
-        // fix text area to min height
-        //$(".ql-container").css("min-height", "75vh");
-
-
+       
         ///////////////////////* create a custom button *////////////////////
+       
         const customButton = CUSTOMIMAGEBUTTON;
         let button = ReactDOMServer.renderToStaticMarkup(customButton)
         var numberOfEditorButtons = $(".ql-toolbar").children().length;
@@ -65,11 +78,18 @@ class MainViewComponent extends React.Component {
         lastButton.bind("click", this.customButtonAction);
 
         /////////////////////////////////////////////////////////////////////
+
+         // create quill ref
+         this.attachQuillRefs();
+
+         /* fix text area to min height
+            $(".ql-container").css("min-height", "75vh");
+         */
     }
 
     componentWillMount() {
-        const { dispatch, selected } = this.props;
-        dispatch(mainViewActions.displayCurrentSelection(selected));
+        const { selected } = this.props;
+        this.dispatch(mainViewActions.displayCurrentSelection(selected));
     }
 
     handleChange(value) {
@@ -88,6 +108,13 @@ class MainViewComponent extends React.Component {
         if (quillRef != null) this.quillRef = quillRef;
     }
 
+    save() {
+        const quill = this.quillRef;
+        var delta = quill.container.firstChild.innerHTML
+        var editorHtml = $(".ql-editor").find('h1,h2,h3,h4');
+        this.dispatch(mainViewActions.setTree(editorHtml));
+    }
+
     render() {
         const placeholder = 'Enter your text here'
         const { testEdit } = this.props;
@@ -98,7 +125,7 @@ class MainViewComponent extends React.Component {
                     <div id="toolbar"></div>
                     <ReactQuill
                         ref={(el) => { this.reactQuillRef = el }}
-                        style={{ height: '80vh' }}
+                        style={{ height: '78vh' }}
                         onChange={this.handleChange}
                         placeholder={placeholder}
                         modules={mainViewConstants.EDITOR.modules}
@@ -113,10 +140,12 @@ class MainViewComponent extends React.Component {
 }
 
 function mapStateToProps(state) {
-    const { tree } = state;
+    const { tree, navBar } = state;
     const selectedTreeNode = tree.selected || '';
+    const isSaved = navBar.save;
     return {
-        selectedTreeNode
+        selectedTreeNode,
+        isSaved
     };
 }
 

@@ -6,6 +6,10 @@ export function tree(state = {}, action) {
       return{
         selected: action.treeNodeName        
       };
+      case treeConstants.NEW_TREE:
+      return{        
+        treeData: action.newTree
+      };
     default:
       return state
   }
