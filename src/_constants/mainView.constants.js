@@ -2,6 +2,8 @@ import React from 'react';
 
 export const mainViewConstants = {
     CURRENT_SELECTION: 'CURRENT_NODE_SELECTION',
+    NEW_TREE: 'NEW_TREE',
+
     EDITOR: {
         modules: {
             toolbar: [
@@ -13,7 +15,7 @@ export const mainViewConstants = {
                 [{ 'indent': '-1' }, { 'indent': '+1' }],         // outdent/indent          
                 [{ 'direction': 'rtl' }],                         // text direction
                 [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
-                [{ 'header': [1, 2, 3, 4, 5, 6, false] }],        // number of headers order
+                [{ 'header': [1, 2, 3, 4, false] }],        // number of headers order
                 [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
                 [{ 'font': [] }],                                 // font
                 [{ 'align': [] }],                                // align

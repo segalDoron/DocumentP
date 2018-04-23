@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { treeActions } from '../../_actions';
 
 import { Treebeard, decorators } from 'react-treebeard';
-import * as filters from '../../_services/tree/treeSreachFilter';
+import * as filters from '../../_services/tree/treeSearchFilter';
 
 import $ from 'jquery';
 
@@ -110,7 +110,7 @@ class TreeComponent extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = { treeData: data, treeFiltered: data };
+    this.state = { treeData: [], treeFiltered: [] };
     this.onToggle = this.onToggle.bind(this);
     this.createTree = this.createTree.bind(this);
   }
