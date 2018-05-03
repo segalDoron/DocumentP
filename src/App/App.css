@@ -296,7 +296,7 @@
 
     .sidebar-sticky{
       position: sticky;
-      top: 60px;
+      top: 20px;
       z-index: 1020;
     }
     
@@ -361,5 +361,4 @@
  .text-editor-size{
     width: 80vw;
     padding-left: 10px;
-    padding-bottom: 70px;
  }

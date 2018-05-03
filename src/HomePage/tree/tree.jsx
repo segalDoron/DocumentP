@@ -2,73 +2,72 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { treeActions } from '../../_actions';
-
-import { Treebeard, decorators } from 'react-treebeard';
+import { Treebeard, decorators } from '../../_addaptedLibs/react-treebeard'
 import * as filters from '../../_services/tree/treeSearchFilter';
 
 import $ from 'jquery';
 
 
-/* Create tree fake date
-  const data = [
-    {
-      name: 'h1-0',
-      order: 1,
-      toggled: true,
-      children: [
-        {
-          name: 'h2-0-0',
-          order: 2,
-          children: [
-            { name: 'h3-0-0-0', order: 3, children: [{ name: 'h4-0-0-0-0', order: 4, }] },
-            { name: 'h3-0-0-1', order: 3, children: [{ name: 'h4-0-0-0-1', order: 4, }] }
-          ]
-        },
-        {
-          name: 'h2-0-1',
-          loading: true,
-          order: 2,
-          children: []
-        },
-        {
-          name: 'h2-0-2',
-          order: 2,
-          children: [
-            { name: 'h3-0-2-0', order: 3, children: [{ name: 'h4-0-2-0-0', order: 4, }] }
-          ]
-        }
-      ]
-    },
-    {
-      name: 'h1-1',
-      toggled: true,
-      order: 1,
-      children: [
-        {
-          name: 'h2-1-0',
-          order: 2,
-          children: [
-            { name: 'h3-1-0-0', order: 3, children: [{ name: 'h4-1-0-0-0', order: 4, }] },
-            { name: 'h3-1-0-1', order: 3, children: [{ name: 'h4-1-0-0-1', order: 4 }] }
-          ]
-        },
-        {
-          name: 'h2-1-1',
-          order: 2,
-          loading: true,
-          children: []
-        },
-        {
-          name: 'h2-1-2',
-          order: 2,
-          children: [
-            { name: 'h3-1-2-0', order: 3, children: [{ name: 'h4-1-2-0-0', order: 4 }, { name: 'h4-1-2-0-1', order: 4 }] }
-          ]
-        }
-      ]
-    }
-  ]
-*/
+// Create tree fake date
+const data = [
+  {
+    name: 'h1-0',
+    order: 1,
+    toggled: true,
+    children: [
+      {
+        name: 'h2-0-0',
+        order: 2,
+        children: [
+          { name: 'h3-0-0-0', order: 3, children: [{ name: 'h4-0-0-0-0', order: 4, }] },
+          { name: 'h3-0-0-1', order: 3, children: [{ name: 'h4-0-0-0-1', order: 4, }] }
+        ]
+      },
+      {
+        name: 'h2-0-1',
+        loading: true,
+        order: 2,
+        children: []
+      },
+      {
+        name: 'h2-0-2',
+        order: 2,
+        children: [
+          { name: 'h3-0-2-0', order: 3, children: [{ name: 'h4-0-2-0-0', order: 4, }] }
+        ]
+      }
+    ]
+  },
+  {
+    name: 'h1-1',
+    toggled: true,
+    order: 1,
+    children: [
+      {
+        name: 'h2-1-0',
+        order: 2,
+        children: [
+          { name: 'h3-1-0-0', order: 3, children: [{ name: 'h4-1-0-0-0', order: 4, }] },
+          { name: 'h3-1-0-1', order: 3, children: [{ name: 'h4-1-0-0-1', order: 4 }] }
+        ]
+      },
+      {
+        name: 'h2-1-1',
+        order: 2,
+        loading: true,
+        children: []
+      },
+      {
+        name: 'h2-1-2',
+        order: 2,
+        children: [
+          { name: 'h3-1-2-0', order: 3, children: [{ name: 'h4-1-2-0-0', order: 4 }, { name: 'h4-1-2-0-1', order: 4 }] }
+        ]
+      }
+    ]
+  }
+]
+
 
 
 /*Example: Customising The Header Decorator To Include Icons
@@ -110,28 +109,40 @@ class TreeComponent extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = { treeData: [], treeFiltered: [] };
+    this.state = { treeData: data, treeFiltered: data, toggle: false };
     this.onToggle = this.onToggle.bind(this);
     this.createTree = this.createTree.bind(this);
+    this.indentTree = this.indentTree.bind(this);
   }
 
   /* update component on props change */
   componentWillReceiveProps(nextProps, nextState) {
     if (nextProps.data != null) {
       const data = nextProps.data;
-      this.setState({ treeData: data, treeFiltered: data, })
+      this.setState({ treeData: data, treeFiltered: data })
     }
   }
 
   componentDidUpdate() {
-    $("#tree div").each(function () {
-      let ele = $(this);
-      ele.attr('title', ele[0].innerText);
+    this.indentTree()
+  }
+
+  componentDidMount() {
+    this.indentTree()
+  }
+
+
+  /* if node tree does not contain data hide else add title attr */
+  indentTree() {
+    $('div[style*="cursor: pointer; position: relative; padding: 0px 5px; display: block;"]').each(function () {
+      let ele = $(this).children().eq(1);
+      if (ele.text() == "") $(this).hide();
+      else ele.attr('title', ele[0].innerText);
     });
   }
 
   /* on tree node click */
-  onToggle(node, toggled) {
+  onToggle(node, toggled, text) {
     const { cursor } = this.state;
 
     if (cursor) {
@@ -139,15 +150,15 @@ class TreeComponent extends React.Component {
     }
 
     node.active = true;
-    if (node.children) {
+    if (node.children && !text) {
       node.toggled = toggled;
     }
 
     this.setState({ cursor: node });
 
-    const { dispatch } = this.props;
-    if (!cursor || node.name !== cursor.name) {
-      dispatch(treeActions.nodeSelected(node.name));
+    if (text) {
+      const { dispatch } = this.props;
+      dispatch(treeActions.nodeSelected(node.position, node.toggled));
     }
   }
 
@@ -155,7 +166,7 @@ class TreeComponent extends React.Component {
   onFilterMouseUp(e) {
     const temp = [];
     const filter = e.target.value.trim();
-    if (!filter) {    
+    if (!filter) {
       this.state.treeData.forEach((node) => {
         node.toggled = false
       })

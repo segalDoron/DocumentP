@@ -4,10 +4,10 @@ export const treeActions = {
     nodeSelected
 };
 
-function nodeSelected(treeNodeName) {
+function nodeSelected(treeNodePosition, toggled) {
     return dispatch => {
-        dispatch(setSelection( treeNodeName ));       
+        dispatch(setSelection(treeNodePosition, toggled));
     };
 
-    function setSelection(treeNodeName) { return { type: treeConstants.TREE_NODE_SELECTED, treeNodeName } }
+    function setSelection(treeNodePosition, toggled) { return { type: treeConstants.TREE_NODE_SELECTED, data: { position: treeNodePosition, toggled: toggled } } }
 }
