@@ -4,6 +4,7 @@ import ReactQuill from 'react-quill';
 import { navBarActions, mainViewActions } from '../../_actions';
 import { mainViewService_bl } from '../../_services';
 import { mainViewConstants, CUSTOMBUTTONS } from '../../_constants';
+import { Model } from '../../Model/model'
 import $ from 'jquery';
 
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, ListGroup, ListGroupItem } from 'reactstrap';
@@ -19,7 +20,11 @@ class MainViewComponent extends React.Component {
             text: "",
             nodeSelected: "",
             viewMode: true,
-            content: Delta
+            content: Delta,
+            range: {
+                index: -1,
+                length: -1
+            }
         }
 
         this.dispatch = this.props.dispatch;
@@ -35,9 +40,8 @@ class MainViewComponent extends React.Component {
         this.addComment = this.addComment.bind(this);
         this.scrollTo = this.scrollTo.bind(this);
         this.addLink = this.addLink.bind(this);
-        this.toggle = this.toggle.bind(this);
-        this.returnNodeLinks = this.returnNodeLinks.bind(this);
-        this.setLink = this.setLink.bind(this);
+        this.modelToggle = this.modelToggle.bind(this);
+        this.bindLinkToScrollFun = this.bindLinkToScrollFun.bind(this);
 
     }
 
@@ -66,14 +70,17 @@ class MainViewComponent extends React.Component {
     /* Updates component */
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (!this.state.viewMode == prevProps.viewMode) {
-            this.updateToolBar()
+            this.bindLinkToScrollFun();
             this.reactQuillRef.getEditor().enable(!this.state.viewMode);
             $(".ql-tooltip").remove();
+            if (!this.state.viewMode)
+                this.updateToolBar()
         }
     }
 
     /* Invoke once after component render method finishes */
     componentDidMount() {
+        this.bindLinkToScrollFun();
         this.reactQuillRef.getEditor().enable(!this.state.viewMode);
     }
 
@@ -89,7 +96,6 @@ class MainViewComponent extends React.Component {
     }
 
     save() {
-        // var editorHtml = $(".ql-editor").find('h1,h2,h3,h4');
         var quill = this.reactQuillRef.getEditor();
         const innerHtml = quill.container.children[0].children
         this.dispatch(mainViewActions.setTree(innerHtml));
@@ -117,27 +123,52 @@ class MainViewComponent extends React.Component {
             )
     }
 
-    addLink() {
+    /* Add custom link to scroll inside quil editor */
+    addLink(elPosition) {
         const quill = this.reactQuillRef.getEditor();
-        this.toggle();
-        var range = quill.getSelection();
-        if (range.length > 0) {
-            var text = quill.getText(range.index, range.length);
-            let position = range.index;
-            quill.deleteText(range.index, range.length);
-            quill.clipboard.dangerouslyPasteHTML(position, '<a href="' + position + '" target="_blank"><b>' + text + '</b></a>');
-            let action = this.scrollTo
-            $("a>strong").each(function (index) {
-                $(this).bind("click", position, action);
-            });
-        }
+        const { range } = this.state
+        var text = quill.getText(range.index, range.length);
+        quill.deleteText(range.index, range.length);
+        quill.clipboard.dangerouslyPasteHTML(range.index, '<a href="#' + elPosition + '?" ><b>' + text + '</b></a>');
+        this.bindLinkToScrollFun();
+
     }
 
+    /* remove link redirect and bind to scroll function */
+    bindLinkToScrollFun() {
+        let action = this.scrollTo
+        $("a[target='_blank']").each(function () {
+            $(this).unbind("click", action);
+            $(this).removeAttr("target");
+            var setTo = $(this).attr('href');
+            setTo = parseInt(setTo.slice(1, -1));
+            $(this).bind("click", setTo, action);
+        });
+    }
+
+    /* scroll to quill editor position */
     scrollTo(selectedTreeNode) {
         let scrollTo = selectedTreeNode.data != undefined ? selectedTreeNode.data : selectedTreeNode;
         const quillRef = this.reactQuillRef.getEditor();
         quillRef.setSelection(scrollTo, 0);
     }
+
+    /* toggle modle view */
+    //if pressed form toolbar mast be chars selected
+    //if pressed from inside the model will be closed
+
+    modelToggle(buttonPressed) {
+        const quill = this.reactQuillRef.getEditor();
+        var selectionRange = quill.getSelection();
+        buttonPressed = typeof (buttonPressed) === "boolean" ? true : false
+        if ((selectionRange && selectionRange.length > 0) || buttonPressed) {
+            this.setState({
+                modal: !this.state.modal,
+                range: selectionRange
+            });
+        }
+    }
+
 
     addComment() {
         const quill = this.reactQuillRef.getEditor();
@@ -183,51 +214,19 @@ class MainViewComponent extends React.Component {
         );
     }
 
-    toggle() {
-        this.setState({
-            modal: !this.state.modal
-        });
-        return Promise.resolve('blabla');
-    }
-
-    returnNodeLinks() {
-        let a = this;
-        return (
-            <ListGroup>
-                <ListGroupItem onClick={this.setLink} tag="button" action>Cras justo odio</ListGroupItem>
-                <ListGroupItem onClick={this.setLink} tag="button" action>Dapibus ac facilisis in</ListGroupItem>
-                <ListGroupItem onClick={this.setLink} tag="button" action>Morbi leo risus</ListGroupItem>
-                <ListGroupItem onClick={this.setLink} tag="button" action>Porta ac consectetur ac</ListGroupItem>
-            </ListGroup>
-        );
-    }
-
-    setLink() {
-        let a = 1;
-        this.toggle();
-    }
-
     render() {
         const placeholder = 'Enter your text here'
         const { testEdit } = this.props;
         const { text, viewMode } = this.state
         const view = this.userView(viewMode);
-        const returnNodeLinks = this.returnNodeLinks();
+
         return (
 
             <div className="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
                 <div className="text-editor text-editor-size">
                     {view}
                 </div>
-                <Modal isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
-                    <ModalHeader>Modal title</ModalHeader>
-                    <ModalBody>
-                        {returnNodeLinks}
-                    </ModalBody>
-                    <ModalFooter>
-                        <Button color="secondary" onClick={this.toggle}>Cancel</Button>
-                    </ModalFooter>
-                </Modal>
+                <Model isOpen={this.state.modal} toggle={this.modelToggle} add={this.addLink} />
             </div>
 
         );

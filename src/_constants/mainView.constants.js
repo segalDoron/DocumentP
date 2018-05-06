@@ -47,7 +47,7 @@ export const CUSTOMBUTTONS =
                         </button>
                     </span>`,
             order: -1,
-            handlerName: 'addLink'
+            handlerName: 'modelToggle'
         },
         {
             // add image
