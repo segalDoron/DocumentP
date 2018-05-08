@@ -1,26 +1,32 @@
 
 import React from 'react';
 import { connect } from 'react-redux';
+import { modelService_bl } from '../_services'
 
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, ListGroup, ListGroupItem } from 'reactstrap';
 
-class ModelComponent extends React.Component {
+class SelectLinkModelComponent extends React.Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            positionToSend: -1
+            positionToSend: -1,
+            treeData: []
         };
         this.returnNodeLinks = this.returnNodeLinks.bind(this);
         this.setLink = this.setLink.bind(this);
-        this.add = this.add.bind(this); 
+        this.add = this.add.bind(this);
     }
 
     /* update component on props change */
     componentWillReceiveProps(nextProps, nextState) {
         this.setState({
-            positionToSend: -1
+            positionToSend: -1,
         });
+        const treeData = nextProps.treeData
+        return modelService_bl.constructModelTreeData(treeData).then(response => {
+            this.setState({ treeData: response })
+        })
     }
 
     componentDidUpdate() {
@@ -32,14 +38,11 @@ class ModelComponent extends React.Component {
     }
 
     returnNodeLinks() {
-        return (
-            <ListGroup>
-                <ListGroupItem onClick={() => this.setLink(1)} tag="button" action>Cras justo odio</ListGroupItem>
-                <ListGroupItem onClick={() => this.setLink(2)} tag="button" action>Dapibus ac facilisis in</ListGroupItem>
-                <ListGroupItem onClick={() => this.setLink(3)} tag="button" action>Morbi leo risus</ListGroupItem>
-                <ListGroupItem onClick={() => this.setLink(4)} tag="button" action>Porta ac consectetur ac</ListGroupItem>
-            </ListGroup>
-        );
+
+        var returnEle = this.state.treeData.map((ele, index) => {
+            return <ListGroupItem  onClick={() => this.setLink(ele.position)} tag="button" action key={index}>{ele.name}</ListGroupItem>;
+        });
+        return <ListGroup>{returnEle}</ListGroup>;
     }
 
     setLink(elePosition) {
@@ -74,10 +77,13 @@ class ModelComponent extends React.Component {
 }
 
 function mapStateToProps(state) {
+    const { tree } = state
+    const treeData = tree.treeData;
     return {
+        treeData
     };
 }
 
-const Model = connect(mapStateToProps)(ModelComponent);
-export { Model as Model };
+const Model = connect(mapStateToProps)(SelectLinkModelComponent);
+export { Model as SelectLinkModel };
 

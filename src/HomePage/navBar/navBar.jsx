@@ -6,10 +6,11 @@ import FaEdit from 'react-icons/lib/fa/edit';
 import { navBarActions } from '../../_actions';
 
 
+
 class NBarComponent extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { view: true }
+    this.state = { view: true, clicked: 1 }
 
     this.save = this.save.bind(this);
     this.changeViewState = this.changeViewState.bind(this);
@@ -17,7 +18,8 @@ class NBarComponent extends React.Component {
 
   save() {
     const { dispatch } = this.props;
-    dispatch(navBarActions.isSaved(true));
+    dispatch(navBarActions.save(this.state.clicked));
+    this.setState({ clicked: this.state.clicked == 1 ? 2 : 1 })
   }
 
   changeViewState(state) {

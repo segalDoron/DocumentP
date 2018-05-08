@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 export const mainViewService_del = {
-    getView
+    getView,
+    save
 };
 
 function getView(select) {
@@ -13,6 +14,16 @@ function getView(select) {
             }
             return response.data
 
+        }).catch(error => {
+            console.log(error.response)
+        });
+}
+
+function save(delta) {
+    return axios.put('http://www.mocky.io/v2/5af05717310000590096c5d2', { data: delta })
+        .then(response => {
+            // return Promise.reject(response.statusText);
+            console.log(response);
         }).catch(error => {
             console.log(error.response)
         });

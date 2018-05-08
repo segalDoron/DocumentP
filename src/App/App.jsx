@@ -1,12 +1,9 @@
 import React from 'react';
-import { Router, Route } from 'react-router-dom';
+import { Router } from 'react-router-dom';
 import { connect } from 'react-redux';
-
 import { history } from '../_helpers';
 import { alertActions } from '../_actions';
 import { PrivateRoute } from '../_components';
-import { LoginPage } from '../LoginPage';
-import { RegisterPage } from '../RegisterPage';
 import { HomePage } from '../HomePage';
 import './App.css';
 
@@ -17,34 +14,21 @@ class App extends React.Component {
 
         const { dispatch } = this.props;
         history.listen((location, action) => {
-            // clear alert on location change
             dispatch(alertActions.clear());
         });
     }
 
     render() {
-        const { alert } = this.props;
         return (
             <div>
-                {alert.message &&
-                    <div className={`alert ${alert.type}`}>{alert.message}</div>
-                }
-                <Router history={history}>
-                    <div>
-                        <PrivateRoute exact path="/" component={HomePage} />
-                         <Route path="/login" component={LoginPage} />
-                        <Route path="/register" component={RegisterPage} />
-                    </div>
-                </Router>
+                <HomePage />
             </div>
         );
     }
 }
 
 function mapStateToProps(state) {
-    const { alert } = state;
     return {
-        alert
     };
 }
 

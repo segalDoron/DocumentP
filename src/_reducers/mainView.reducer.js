@@ -7,6 +7,10 @@ export function mainView(state = {}, action) {
         isSelected: true,
         selected: action.selected
       };
+    case mainViewConstants.SAVE:
+      return {
+        saveTrigger: action.clickE
+      };
     case mainViewConstants.VIEW:
       return {
         viewMode: action.state

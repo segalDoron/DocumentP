@@ -1,8 +1,8 @@
 
 export const mainViewConstants = {
     CURRENT_SELECTION: 'CURRENT_NODE_SELECTION',
-    NEW_TREE: 'NEW_TREE',
     VIEW: 'VIEW',
+    SAVE:'SAVE',
     EDITOR_MODE: 'editorModule',
     VIEWER_MODE: 'viewerModule',
 

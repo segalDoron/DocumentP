@@ -3,18 +3,20 @@ import { connect } from 'react-redux';
 import { NBarComponent } from './navBar/navBar';
 import { TreeComponent } from './tree/tree';
 import { MainViewComponent } from './mainView/mainView';
+import { ReactDOM } from 'react-dom';
 
 import { userActions } from '../_actions';
 
 class HomePage extends React.Component {
+
+    constructor() {
+        super();
+        this.state = {};
+    }
     componentDidMount() {
         this.props.dispatch(userActions.getAll());
     }
 
-    handleDeleteUser(id) {
-        return (e) => this.props.dispatch(userActions.delete(id));
-    }
-    
     render() {
         const { user, users } = this.props;
         return (
@@ -32,11 +34,7 @@ class HomePage extends React.Component {
 }
 
 function mapStateToProps(state) {
-    const { users, authentication } = state;
-    const { user } = authentication;
     return {
-        user,
-        users
     };
 }
 

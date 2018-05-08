@@ -1,10 +1,9 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import ReactQuill from 'react-quill';
-import { navBarActions, mainViewActions } from '../../_actions';
-import { mainViewService_bl } from '../../_services';
+import { mainViewService_bl, mainViewService_del } from '../../_services';
 import { mainViewConstants, CUSTOMBUTTONS } from '../../_constants';
-import { Model } from '../../Model/model'
+import { SelectLinkModel } from '../../Models'
 import $ from 'jquery';
 
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, ListGroup, ListGroupItem } from 'reactstrap';
@@ -21,6 +20,7 @@ class MainViewComponent extends React.Component {
             nodeSelected: "",
             viewMode: true,
             content: Delta,
+            save: 0,
             range: {
                 index: -1,
                 length: -1
@@ -36,12 +36,12 @@ class MainViewComponent extends React.Component {
         this.handleChange = this.handleChange.bind(this)
         this.addImageHandler = this.addImageHandler.bind(this);
         this.userView = this.userView.bind(this);
-        this.save = this.save.bind(this);
         this.addComment = this.addComment.bind(this);
         this.scrollTo = this.scrollTo.bind(this);
         this.addLink = this.addLink.bind(this);
         this.modelToggle = this.modelToggle.bind(this);
         this.bindLinkToScrollFun = this.bindLinkToScrollFun.bind(this);
+        this.save = this.save.bind(this);
 
     }
 
@@ -49,7 +49,7 @@ class MainViewComponent extends React.Component {
     /* update component on props change */
     componentWillReceiveProps(nextProps, nextState) {
 
-        this.setState({ viewMode: nextProps.viewMode })
+        this.setState({ viewMode: nextProps.viewMode, save: nextProps.saveTrigger })
         const selected = this.state.nodeSelected
 
         //set selected tree node
@@ -58,18 +58,15 @@ class MainViewComponent extends React.Component {
 
         this.scrollTo(nextProps.selectedTreeNode);
 
-        // invoke save method
-        if (nextProps.isSaved == true) {
-            this.save();
-            this.dispatch(navBarActions.isSaved(false));
-        }
+        if (nextProps.saveTrigger != undefined) this.save()
 
         return false;
     }
 
     /* Updates component */
     componentDidUpdate(prevProps, prevState, snapshot) {
-        if (!this.state.viewMode == prevProps.viewMode) {
+        const prevView = prevState.viewMode == undefined ? false : prevState.viewMode;
+        if (!this.state.viewMode == prevView) {
             this.bindLinkToScrollFun();
             this.reactQuillRef.getEditor().enable(!this.state.viewMode);
             $(".ql-tooltip").remove();
@@ -84,6 +81,14 @@ class MainViewComponent extends React.Component {
         this.reactQuillRef.getEditor().enable(!this.state.viewMode);
     }
 
+    save() {
+        const quill = this.reactQuillRef.getEditor();
+        var range = quill.getSelection();
+        quill.setSelection(range.index, 0);
+        var delta = quill.getContents();
+        mainViewService_del.save(delta);
+    }
+
     /*
     componentWillMount() {
         const { selected } = this.props;
@@ -93,12 +98,6 @@ class MainViewComponent extends React.Component {
 
     handleChange(value) {
         this.setState({ text: value })
-    }
-
-    save() {
-        var quill = this.reactQuillRef.getEditor();
-        const innerHtml = quill.container.children[0].children
-        this.dispatch(mainViewActions.setTree(innerHtml));
     }
 
     /* update toolbar with custom buttons*/
@@ -130,7 +129,7 @@ class MainViewComponent extends React.Component {
         var text = quill.getText(range.index, range.length);
         quill.deleteText(range.index, range.length);
         quill.clipboard.dangerouslyPasteHTML(range.index, '<a href="#' + elPosition + '?" ><b>' + text + '</b></a>');
-        this.bindLinkToScrollFun();
+        // this.bindLinkToScrollFun();
 
     }
 
@@ -156,7 +155,6 @@ class MainViewComponent extends React.Component {
     /* toggle modle view */
     //if pressed form toolbar mast be chars selected
     //if pressed from inside the model will be closed
-
     modelToggle(buttonPressed) {
         const quill = this.reactQuillRef.getEditor();
         var selectionRange = quill.getSelection();
@@ -184,20 +182,19 @@ class MainViewComponent extends React.Component {
     }
 
     /* returns element chosen view mode */
-    userView(viewMode) {
+    userView(viewMode, save) {
         let height = "";
         let modules = "";
         let placeholder = 'Enter your text here';
         let add = { onChange: () => { } };
-        if (viewMode) {
-            height = '88vh';
-            modules = mainViewConstants.VIEWER_MODE
-        }
-        else {
+        if (!viewMode || save) {
             height = '78vh';
             modules = mainViewConstants.EDITOR_MODE
             add.onChange = this.handleChange;
-
+        }
+        else {
+            height = '88vh';
+            modules = mainViewConstants.VIEWER_MODE
         }
 
         return (
@@ -217,16 +214,16 @@ class MainViewComponent extends React.Component {
     render() {
         const placeholder = 'Enter your text here'
         const { testEdit } = this.props;
-        const { text, viewMode } = this.state
-        const view = this.userView(viewMode);
-
+        const { text, viewMode, save } = this.state
+        const view = this.userView(viewMode, save);
+        this.bindLinkToScrollFun();
         return (
 
             <div className="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
                 <div className="text-editor text-editor-size">
                     {view}
                 </div>
-                <Model isOpen={this.state.modal} toggle={this.modelToggle} add={this.addLink} />
+                <SelectLinkModel isOpen={this.state.modal} toggle={this.modelToggle} add={this.addLink} />
             </div>
 
         );
@@ -237,13 +234,13 @@ function mapStateToProps(state) {
     const { tree, navBar, mainView } = state;
     const selectedTreeNode = tree.selected || 0;
     const toggleNode = tree.toggleNode
-    const isSaved = navBar.save;
-    const viewMode = mainView.viewMode == undefined ? true : mainView.viewMode;
+    const viewMode = mainView.viewMode;
+    const saveTrigger = mainView.saveTrigger
     return {
         selectedTreeNode,
-        isSaved,
         viewMode,
-        toggleNode
+        toggleNode,
+        saveTrigger
     };
 }
 
