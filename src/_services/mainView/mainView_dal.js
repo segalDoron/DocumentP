@@ -1,8 +1,8 @@
-import { authHeader } from '../_helpers';
 import axios from 'axios';
 
-export const mainViewService = {
-    getView
+export const mainViewService_del = {
+    getView,
+    save
 };
 
 function getView(select) {
@@ -18,3 +18,14 @@ function getView(select) {
             console.log(error.response)
         });
 }
+
+function save(delta) {
+    return axios.put('http://www.mocky.io/v2/5af05717310000590096c5d2', { data: delta })
+        .then(response => {
+            // return Promise.reject(response.statusText);
+            console.log(response);
+        }).catch(error => {
+            console.log(error.response)
+        });
+}
+

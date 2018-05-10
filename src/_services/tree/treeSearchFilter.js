@@ -2,6 +2,7 @@
 
 // Helper functions for filtering
 export const defaultMatcher = (filterText, node) => {
+    let test = node.name.toLowerCase().indexOf(filterText.toLowerCase()) !== -1;
     return node.name.toLowerCase().indexOf(filterText.toLowerCase()) !== -1;
 };
 

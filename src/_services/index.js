@@ -1,2 +1,4 @@
 export * from './user.service';
-export * from './mainViewService';
+export * from './mainView';
+export * from './tree';
+export * from './model';

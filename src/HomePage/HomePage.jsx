@@ -1,30 +1,35 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
-import NBar from './navBar/navBar';
+import { NBarComponent } from './navBar/navBar';
 import { TreeComponent } from './tree/tree';
+import { Loader } from '../_components'
 import { MainViewComponent } from './mainView/mainView';
+import { ReactDOM } from 'react-dom';
 
 import { userActions } from '../_actions';
 
 class HomePage extends React.Component {
+
+    constructor() {
+        super();
+        this.state = {};
+    }
     componentDidMount() {
         this.props.dispatch(userActions.getAll());
-    }
-
-    handleDeleteUser(id) {
-        return (e) => this.props.dispatch(userActions.delete(id));
     }
 
     render() {
         const { user, users } = this.props;
         return (
             <div>
-                <NBar />
-                <div className="container-fluid">
-                    <div className="row">
-                        <TreeComponent />
-                        <MainViewComponent />
+                <Loader />
+                <div>
+                    <NBarComponent />
+                    <div className="container-fluid">
+                        <div className="row">
+                            <TreeComponent />
+                            <MainViewComponent />
+                        </div>
                     </div>
                 </div>
             </div >
@@ -33,11 +38,7 @@ class HomePage extends React.Component {
 }
 
 function mapStateToProps(state) {
-    const { users, authentication } = state;
-    const { user } = authentication;
     return {
-        user,
-        users
     };
 }
 

@@ -1,4 +1,5 @@
 import { authHeader } from '../_helpers';
+import axios from 'axios';
 
 export const userService = {
     login,
@@ -10,29 +11,50 @@ export const userService = {
     delete: _delete
 };
 
-function login(username, password) {
-    const requestOptions = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-    };
+const baseUrl = 'http://localhost:58633';
 
-    return fetch('/users/authenticate', requestOptions)
+function login(username, password) {
+    // const requestOptions = {
+    //     method: 'POST',
+    //     headers: { 'Content-Type': 'application/json' },
+    //     body: JSON.stringify({ username, password })
+    // };
+
+    // return fetch('/users/authenticate', requestOptions)
+    //     .then(response => {
+    //         if (!response.ok) { 
+    //             return Promise.reject(response.statusText);
+    //         }
+
+    //         return response.json();
+    //     })
+    // .then(user => {
+    //     // login successful if there's a jwt token in the response
+    //     if (user && user.token) {
+    //         // store user details and jwt token in local storage to keep user logged in between page refreshes
+    //         localStorage.setItem('user', JSON.stringify(user));
+    //     }
+
+    //     return user;
+    // });
+    let user = forNow();
+    let item = {};
+    return axios.get('https://jsonplaceholder.typicode.com/comments?postId=1')
         .then(response => {
-            if (!response.ok) { 
+            if (!response) {
                 return Promise.reject(response.statusText);
             }
+            return response.data
 
-            return response.json();
-        })
-        .then(user => {
+        }).then(item => {
             // login successful if there's a jwt token in the response
             if (user && user.token) {
                 // store user details and jwt token in local storage to keep user logged in between page refreshes
                 localStorage.setItem('user', JSON.stringify(user));
             }
-
             return user;
+        }).catch(error => {
+            console.log(error.response)
         });
 }
 
@@ -90,9 +112,27 @@ function _delete(id) {
 }
 
 function handleResponse(response) {
-    if (!response.ok) { 
+    if (!response.ok) {
         return Promise.reject(response.statusText);
     }
 
     return response.json();
+}
+
+function forNow() {
+    let users = JSON.parse(localStorage.getItem('users')) || [];
+    let responseJson = {};
+
+    if (users.length) {
+        // if login details are valid return user details and fake jwt token
+        let user = users[0];
+        responseJson = {
+            id: user.id,
+            username: user.username,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            token: 'fake-jwt-token'
+        };
+    }
+    return responseJson;
 }
