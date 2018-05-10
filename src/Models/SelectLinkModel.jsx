@@ -23,10 +23,15 @@ class SelectLinkModelComponent extends React.Component {
         this.setState({
             positionToSend: -1,
         });
-        const treeData = nextProps.treeData
-        return modelService_bl.constructModelTreeData(treeData).then(response => {
-            this.setState({ treeData: response })
-        })
+
+        const treeData = nextProps.treeData;
+        if (treeData != undefined) {
+            modelService_bl.constructModelTreeData(treeData).then(response => {
+                this.setState({ treeData: response })
+            })
+        }
+        return false;
+
     }
 
     componentDidUpdate() {
@@ -40,7 +45,13 @@ class SelectLinkModelComponent extends React.Component {
     returnNodeLinks() {
 
         var returnEle = this.state.treeData.map((ele, index) => {
-            return <ListGroupItem  onClick={() => this.setLink(ele.position)} tag="button" action key={index}>{ele.name}</ListGroupItem>;
+            const divStyle = {
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                paddingLeft: ele.order + 'em'
+            };
+
+            return <ListGroupItem onClick={() => this.setLink(ele.position)} tag="button" action key={index} className="selectLinkModelLine" style={divStyle} title={ele.name}>{ele.name}</ListGroupItem>;
         });
         return <ListGroup>{returnEle}</ListGroup>;
     }
@@ -60,10 +71,16 @@ class SelectLinkModelComponent extends React.Component {
 
     render() {
         const returnNodeLinks = this.returnNodeLinks();
+        const divStyle = {
+            maxHeight: '70vh',
+            overflow: 'scroll',
+            overflowX: 'hidden',
+            overflowY: 'auto',
+        };
         return (
             <Modal isOpen={this.props.isOpen} toggle={this.props.toggle}>
-                <ModalHeader>Modal title</ModalHeader>
-                <ModalBody>
+                <ModalHeader>Select Header</ModalHeader>
+                <ModalBody style={divStyle}>
                     {returnNodeLinks}
                 </ModalBody>
                 <ModalFooter>

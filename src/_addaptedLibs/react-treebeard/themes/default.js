@@ -6,8 +6,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.default = {
     tree: {
         base: {
-            listStyle: 'none',
-            backgroundColor: '#ffff',
+            listStyle: 'none',            
             margin: 0,
             padding: 0,
             color: '#212529',

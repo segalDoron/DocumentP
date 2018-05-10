@@ -206,7 +206,7 @@ class TreeComponent extends React.Component {
                   type="text" />
               </div>
             </div>
-            <div id='tree'>
+            <div id='tree' className="linkTree">
               <Treebeard data={stateData}
                 // decorators={decorators}
                 onToggle={this.onToggle} />
@@ -219,7 +219,7 @@ class TreeComponent extends React.Component {
           </ul>
           <div>
             {/* Extra info and links */}
-            <h6 className="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+            {/* <h6 className="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
               <span>Saved reports</span>
               <a className="d-flex align-items-center text-muted" href="#">
 
@@ -250,7 +250,7 @@ class TreeComponent extends React.Component {
                   Year-end sale
                                        </a>
               </li>
-            </ul>
+            </ul> */}
           </div>
         </div>
       </nav>

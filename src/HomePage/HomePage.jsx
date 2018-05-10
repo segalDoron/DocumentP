@@ -2,6 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { NBarComponent } from './navBar/navBar';
 import { TreeComponent } from './tree/tree';
+import { Loader } from '../_components'
 import { MainViewComponent } from './mainView/mainView';
 import { ReactDOM } from 'react-dom';
 
@@ -21,11 +22,14 @@ class HomePage extends React.Component {
         const { user, users } = this.props;
         return (
             <div>
-                <NBarComponent />
-                <div className="container-fluid">
-                    <div className="row">
-                        <TreeComponent />
-                        <MainViewComponent />
+                <Loader />
+                <div>
+                    <NBarComponent />
+                    <div className="container-fluid">
+                        <div className="row">
+                            <TreeComponent />
+                            <MainViewComponent />
+                        </div>
                     </div>
                 </div>
             </div >

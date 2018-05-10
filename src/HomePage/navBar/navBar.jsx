@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import Floppy from 'react-icons/lib/fa/floppy-o';
 import FaEye from 'react-icons/lib/fa/eye';
 import FaEdit from 'react-icons/lib/fa/edit';
-import { navBarActions } from '../../_actions';
+import { navBarActions, loaderAction } from '../../_actions';
 
 
 
@@ -18,7 +18,8 @@ class NBarComponent extends React.Component {
 
   save() {
     const { dispatch } = this.props;
-    dispatch(navBarActions.save(this.state.clicked));
+    dispatch(loaderAction.show(true));
+    dispatch(navBarActions.save(this.state.clicked))
     this.setState({ clicked: this.state.clicked == 1 ? 2 : 1 })
   }
 

@@ -6,7 +6,6 @@ import { mainViewConstants, CUSTOMBUTTONS } from '../../_constants';
 import { SelectLinkModel } from '../../Models'
 import $ from 'jquery';
 
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter, ListGroup, ListGroupItem } from 'reactstrap';
 
 
 const { Quill, Mixin, Toolbar, Delta } = ReactQuill;
@@ -67,12 +66,12 @@ class MainViewComponent extends React.Component {
     componentDidUpdate(prevProps, prevState, snapshot) {
         const prevView = prevState.viewMode == undefined ? false : prevState.viewMode;
         if (!this.state.viewMode == prevView) {
-            this.bindLinkToScrollFun();
             this.reactQuillRef.getEditor().enable(!this.state.viewMode);
             $(".ql-tooltip").remove();
             if (!this.state.viewMode)
                 this.updateToolBar()
         }
+        this.bindLinkToScrollFun();
     }
 
     /* Invoke once after component render method finishes */
@@ -136,7 +135,8 @@ class MainViewComponent extends React.Component {
     /* remove link redirect and bind to scroll function */
     bindLinkToScrollFun() {
         let action = this.scrollTo
-        $("a[target='_blank']").each(function () {
+        let anchorList = $("a[target='_blank']");
+        anchorList.each(function () {
             $(this).unbind("click", action);
             $(this).removeAttr("target");
             var setTo = $(this).attr('href');
