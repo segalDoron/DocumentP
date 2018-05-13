@@ -19,11 +19,9 @@ class MainViewComponent extends React.Component {
             nodeSelected: "",
             viewMode: true,
             content: Delta,
-            save: 0,
-            range: {
-                index: -1,
-                length: -1
-            }
+            lastPosition: -1,
+            saved: false,
+            saveTrigger: 0,
         }
 
         this.dispatch = this.props.dispatch;
@@ -44,20 +42,26 @@ class MainViewComponent extends React.Component {
 
     }
 
-
     /* update component on props change */
     componentWillReceiveProps(nextProps, nextState) {
 
-        this.setState({ viewMode: nextProps.viewMode, save: nextProps.saveTrigger })
-        const selected = this.state.nodeSelected
+        // set view state
+        const nextView = nextProps.viewMode != undefined ? nextProps.viewMode : this.state.viewMode;
+        this.setState({ viewMode: nextView })
 
         //set selected tree node
+        const selected = this.state.nodeSelected
         if (nextProps.selectedTreeNode !== selected)
             this.setState({ nodeSelected: nextProps.selectedTreeNode })
 
-        this.scrollTo(nextProps.selectedTreeNode);
+        // set save
+        if (nextProps.saveTrigger != undefined && nextProps.saveTrigger != this.state.saveTrigger) {
+            this.setState({ saved: true })
+            this.save()
+        }
+        this.setState({ saveTrigger: nextProps.saveTrigger })
 
-        if (nextProps.saveTrigger != undefined) this.save()
+        this.scrollTo(nextProps.selectedTreeNode);
 
         return false;
     }
@@ -65,11 +69,18 @@ class MainViewComponent extends React.Component {
     /* Updates component */
     componentDidUpdate(prevProps, prevState, snapshot) {
         const prevView = prevState.viewMode == undefined ? false : prevState.viewMode;
+        const quillRef = this.reactQuillRef.getEditor();
         if (!this.state.viewMode == prevView) {
-            this.reactQuillRef.getEditor().enable(!this.state.viewMode);
+            quillRef.enable(!this.state.viewMode);
             $(".ql-tooltip").remove();
             if (!this.state.viewMode)
                 this.updateToolBar()
+        }
+
+        if (this.state.saved) {
+            quillRef.setSelection(this.state.lastPosition, 0)
+            quillRef.focus();
+            this.setState({ saved: false })
         }
         this.bindLinkToScrollFun();
     }
@@ -78,14 +89,16 @@ class MainViewComponent extends React.Component {
     componentDidMount() {
         this.bindLinkToScrollFun();
         this.reactQuillRef.getEditor().enable(!this.state.viewMode);
+
     }
 
     save() {
         const quill = this.reactQuillRef.getEditor();
-        var range = quill.getSelection();
-        quill.setSelection(range.index, 0);
         var delta = quill.getContents();
         mainViewService_del.save(delta);
+        var range = quill.getSelection();
+        this.setState({ lastPosition: range.index });
+
     }
 
     /*
@@ -117,7 +130,7 @@ class MainViewComponent extends React.Component {
         let position = range ? range.index : 0;
         mainViewService_bl.importPic()
             .then(response =>
-                quill.insertEmbed(position, 'image', 'https://i2.wp.com/www.i879.com/hanablog/wp-content/uploads/2014/09/orangerose2.jpg')
+                quill.clipboard.dangerouslyPasteHTML(position, '<iframe width="250" height="250"  src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Cochlospermum_regium_%28yellow_cotton_tree%29_flower.jpg/250px-Cochlospermum_regium_%28yellow_cotton_tree%29_flower.jpg" ></iframe >')
             )
     }
 
@@ -128,8 +141,6 @@ class MainViewComponent extends React.Component {
         var text = quill.getText(range.index, range.length);
         quill.deleteText(range.index, range.length);
         quill.clipboard.dangerouslyPasteHTML(range.index, '<a href="#' + elPosition + '?" ><b>' + text + '</b></a>');
-        // this.bindLinkToScrollFun();
-
     }
 
     /* remove link redirect and bind to scroll function */
@@ -214,8 +225,8 @@ class MainViewComponent extends React.Component {
     render() {
         const placeholder = 'Enter your text here'
         const { testEdit } = this.props;
-        const { text, viewMode, save } = this.state
-        const view = this.userView(viewMode, save);
+        const { text, viewMode, saveTrigger } = this.state
+        const view = this.userView(viewMode, saveTrigger);
         this.bindLinkToScrollFun();
         return (
 
@@ -233,6 +244,7 @@ class MainViewComponent extends React.Component {
 function mapStateToProps(state) {
     const { tree, navBar, mainView } = state;
     const selectedTreeNode = tree.selected || 0;
+    const treeTriggered = tree.nodeTriggered
     const toggleNode = tree.toggleNode
     const viewMode = mainView.viewMode;
     const saveTrigger = mainView.saveTrigger
@@ -240,7 +252,8 @@ function mapStateToProps(state) {
         selectedTreeNode,
         viewMode,
         toggleNode,
-        saveTrigger
+        saveTrigger,
+        treeTriggered
     };
 }
 

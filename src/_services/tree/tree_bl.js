@@ -5,49 +5,52 @@ import treeNode from '../../_constants/tree.constants'
 export const treeService_bl = {
     setTree,
 };
-function setTree(editorHtml) {
-    const data = [];
+function setTree(editorHtml, hasHeaders) {
     let lastHeader = '';
     let counter = 0;
     let newChild = new treeNode();
     let firstHeader = true;
     let lastHeaderOrder = -1;
     let currentNodeRef;
+    let data = [];
 
-    for (let index = 0; index < editorHtml.length; index++) {
-        const element = editorHtml[index]
-        if (element.nodeName == treeConstants.NODE_NAME.H1 ||
-            element.nodeName == treeConstants.NODE_NAME.H2 ||
-            element.nodeName == treeConstants.NODE_NAME.H3 ||
-            element.nodeName == treeConstants.NODE_NAME.H4) {
+    if (hasHeaders.length > 0) {
 
-            let headerOrder = parseInt(element.localName[1]);
+        for (let index = 0; index < editorHtml.length; index++) {
+            const element = editorHtml[index]
+            if (element.nodeName == treeConstants.NODE_NAME.H1 ||
+                element.nodeName == treeConstants.NODE_NAME.H2 ||
+                element.nodeName == treeConstants.NODE_NAME.H3 ||
+                element.nodeName == treeConstants.NODE_NAME.H4) {
+
+                let headerOrder = parseInt(element.localName[1]);
 
 
-            if (headerOrder == 1) {
-                if (newChild.containsData) data.push(newChild);
-                newChild = new treeNode();
-                newChild.name = element.innerText.trim();
-                newChild.position = counter;
-                newChild.order = 1;
-                currentNodeRef = newChild;
+                if (headerOrder == 1) {
+                    if (newChild.containsData) data.push(newChild);
+                    newChild = new treeNode();
+                    newChild.name = element.innerText.trim();
+                    newChild.position = counter;
+                    newChild.order = 1;
+                    currentNodeRef = newChild;
+                }
+                else orderHeaders(newChild, currentNodeRef, headerOrder, element.innerText, counter);
+                counter += 1 + element.innerText.length;
+                newChild.containsData = true;
+                lastHeaderOrder = headerOrder;
+                continue;
             }
-            else orderHeaders(newChild, currentNodeRef, headerOrder, element.innerText, counter);
-            counter += 1 + element.innerText.length;
-            newChild.containsData = true;
-            lastHeaderOrder = headerOrder;
-            continue;
-        }
 
-        else {
-            if ((element.children[0] && element.children[0].nodeName == treeConstants.NODE_NAME.BR)) counter += 1;
             else {
-                let addition = element.nodeName == treeConstants.NODE_NAME.OL || element.nodeName == treeConstants.NODE_NAME.UL ? 0 : 1;
-                counter += element.innerText.length + addition;
-            };
+                if ((element.children[0] && element.children[0].nodeName == treeConstants.NODE_NAME.BR)) counter += 1;
+                else {
+                    let addition = element.nodeName == treeConstants.NODE_NAME.OL || element.nodeName == treeConstants.NODE_NAME.UL ? 0 : 1;
+                    counter += element.innerText.length + addition;
+                };
+            }
         }
+        data.push(newChild);
     }
-    data.push(newChild);
     return Promise.resolve(data);
 }
 

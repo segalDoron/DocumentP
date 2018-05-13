@@ -109,7 +109,7 @@ class TreeComponent extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = { treeData: data, treeFiltered: data, toggle: false };
+    this.state = { treeData: data, treeFiltered: data, trigger: 0 };
     this.onToggle = this.onToggle.bind(this);
     this.createTree = this.createTree.bind(this);
     this.indentTree = this.indentTree.bind(this);
@@ -154,11 +154,11 @@ class TreeComponent extends React.Component {
       node.toggled = toggled;
     }
 
-    this.setState({ cursor: node });
+    this.setState({ cursor: node, trigger: this.state.trigger == 0 ? 1 : 0 });
 
     if (text) {
       const { dispatch } = this.props;
-      dispatch(treeActions.nodeSelected(node.position, node.toggled));
+      dispatch(treeActions.nodeSelected(node.position, this.state.trigger));
     }
   }
 

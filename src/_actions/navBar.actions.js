@@ -15,8 +15,10 @@ function changeViewState(state) {
 
 function save(clickE) {
     return dispatch => {
+        $(".ql-editor img").remove()
         const inner = $(".ql-editor").children();
-        treeService_bl.setTree(inner).then(
+        const hasHeaders = $(".ql-editor").find('h1,h2,h3,h4');
+        treeService_bl.setTree(inner, hasHeaders).then(
             newTree => {
                 dispatch(setNewTree(newTree));
                 dispatch(saveView(clickE));

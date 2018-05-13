@@ -5,7 +5,7 @@ export function tree(state = {}, action) {
     case treeConstants.TREE_NODE_SELECTED:
       return {
         selected: action.data.position,
-        toggleNode: action.data.toggled
+        nodeTriggered: action.data.trigger
       };
     case treeConstants.NEW_TREE:
       return {

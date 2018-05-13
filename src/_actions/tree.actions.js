@@ -4,10 +4,10 @@ export const treeActions = {
     nodeSelected
 };
 
-function nodeSelected(treeNodePosition, toggled) {
+function nodeSelected(treeNodePosition, trigger) {
     return dispatch => {
-        dispatch(setSelection(treeNodePosition, toggled));
+        dispatch(setSelection(treeNodePosition, trigger));
     };
 
-    function setSelection(treeNodePosition, toggled) { return { type: treeConstants.TREE_NODE_SELECTED, data: { position: treeNodePosition, toggled: toggled } } }
+    function setSelection(treeNodePosition, trigger) { return { type: treeConstants.TREE_NODE_SELECTED, data: { position: treeNodePosition, trigger: trigger } } }
 }
