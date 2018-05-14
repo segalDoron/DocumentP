@@ -1,8 +1,10 @@
 
 export const mainViewConstants = {
+    LINK:"LINK",
+    ADD_IMG:"ADD_IMG",
     CURRENT_SELECTION: 'CURRENT_NODE_SELECTION',
     VIEW: 'VIEW',
-    SAVE:'SAVE',
+    SAVE: 'SAVE',
     EDITOR_MODE: 'editorModule',
     VIEWER_MODE: 'viewerModule',
 
@@ -20,11 +22,28 @@ export const mainViewConstants = {
                 [{ 'header': [1, 2, 3, 4, false] }],              // number of headers order
                 [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
                 [{ 'font': [] }],                                 // font
-                [{ 'align': [] }],                                // align
+                [{ 'align': [] }],                                // align                
             ]
+            /*
+            for pic
+               toolbar: {
+                container: [["bold", "italic"]['link']],
+                handlers: {
+                    // handlers object will be merged with default handlers object
+                    'link': function (value) {
+                        if (value) {
+                            var href = prompt('Enter the URL');
+                            this.quill.format('link', href);
+                        } else {
+                            this.quill.format('link', false);
+                        }
+                    }
+                }
+            }
+            */
         },
         viewerModule: {
-            toolbar: false
+            toolbar: false         
         }
     },
 
@@ -38,7 +57,7 @@ export const CUSTOMBUTTONS =
         {
             // add link
             button: `
-                    <span class='ql-formats'>
+                    <span class='ql-formats' id="LINK">
                         <button class="ql-link" type="button">
                            <svg viewBox='0 0 18 18'>
                                 <line class="ql-stroke" x1="7" x2="11" y1="7" y2="11"></line>
@@ -52,7 +71,7 @@ export const CUSTOMBUTTONS =
         {
             // add image
             button: `
-                    <span class='ql-formats'>
+                    <span class='ql-formats' id="ADD_IMG">
                         <button class='ql-image' type='button'>
                            <svg viewBox='0 0 18 18'>
                                <rect class='ql-stroke' height='10' width='12' x='3' y='4'></rect>
@@ -62,12 +81,12 @@ export const CUSTOMBUTTONS =
                         </button>
                     </span>`,
             order: -1,
-            handlerName: 'addImageHandler'
+            handlerName: 'modelToggle'
         },
         {
             // add comment
             button: `
-                    <span class="ql-formats" title="Add Comment">
+                    <span class="ql-formats" title="Add Comment" id="comment">
                         <button type="button">
                             <svg viewBox="0 -4 40 50" class="ql_edit">
                                 <g>
@@ -82,7 +101,7 @@ export const CUSTOMBUTTONS =
         {
             // next comment
             button: `
-                    <span class="ql-formats" style="margin-right:0" title="prev comment">
+                    <span class="ql-formats" style="margin-right:0" title="prev comment" id="prevComment">
                         <button type="button">
                              <svg viewBox="0 -4 40 50" class="ql_edit">
                                 <g>
@@ -97,7 +116,7 @@ export const CUSTOMBUTTONS =
         {
             // prev comment
             button: `
-                    <span class="ql-formats" style="margin-right:0" title="next comment">
+                    <span class="ql-formats" style="margin-right:0" title="next comment" id="nextComment">
                         <button type="button">
                             <svg viewBox="0 -4 40 50" class="ql_edit">
                                 <g>

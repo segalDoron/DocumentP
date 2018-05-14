@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { connect } from 'react-redux';
-import { modelService_bl } from '../_services'
+import { modelService_bl } from '../_services';
 
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, ListGroup, ListGroupItem } from 'reactstrap';
 
@@ -65,7 +65,7 @@ class SelectLinkModelComponent extends React.Component {
     add() {
         if (this.state.positionToSend != -1)
             this.props.add(this.state.positionToSend);
-        this.props.toggle(true)
+        this.props.toggle(true,"LINK")
     }
 
 
@@ -85,7 +85,7 @@ class SelectLinkModelComponent extends React.Component {
                 </ModalBody>
                 <ModalFooter>
                     <Button color="primary" onClick={this.add}>Apply</Button>
-                    <Button color="secondary" onClick={() => this.props.toggle(true)}>Cancel</Button>
+                    <Button color="secondary" onClick={() => this.props.toggle(true,"LINK")}>Cancel</Button>
                 </ModalFooter>
             </Modal>
         );

@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import ReactQuill from 'react-quill';
 import { mainViewService_bl, mainViewService_del } from '../../_services';
 import { mainViewConstants, CUSTOMBUTTONS } from '../../_constants';
-import { SelectLinkModel } from '../../Models'
+import { SelectLinkModel, SelectPicModel } from '../../Models';
 import $ from 'jquery';
 
 
@@ -14,7 +14,8 @@ class MainViewComponent extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
-            modal: false,
+            LinkModalOpen: false,
+            imgModelOpen: false,
             text: "",
             nodeSelected: "",
             viewMode: true,
@@ -166,14 +167,23 @@ class MainViewComponent extends React.Component {
     /* toggle modle view */
     //if pressed form toolbar mast be chars selected
     //if pressed from inside the model will be closed
-    modelToggle(buttonPressed) {
-        const quill = this.reactQuillRef.getEditor();
-        var selectionRange = quill.getSelection();
-        buttonPressed = typeof (buttonPressed) === "boolean" ? true : false
-        if ((selectionRange && selectionRange.length > 0) || buttonPressed) {
+    modelToggle(buttonPressed, type) {
+        let a = type == undefined ? buttonPressed.currentTarget.id : type;
+        buttonPressed = typeof (buttonPressed) === "boolean" ? true : false;
+
+        if (a == mainViewConstants.LINK) {
+            const quill = this.reactQuillRef.getEditor();
+            var selectionRange = quill.getSelection();
+            if ((selectionRange && selectionRange.length > 0) || buttonPressed) {
+                this.setState({
+                    LinkModalOpen: !this.state.LinkModalOpen,
+                    range: selectionRange
+                });
+            }
+        }
+        else {
             this.setState({
-                modal: !this.state.modal,
-                range: selectionRange
+                imgModelOpen: !this.state.imgModelOpen,
             });
         }
     }
@@ -234,7 +244,8 @@ class MainViewComponent extends React.Component {
                 <div className="text-editor text-editor-size">
                     {view}
                 </div>
-                <SelectLinkModel isOpen={this.state.modal} toggle={this.modelToggle} add={this.addLink} />
+                <SelectLinkModel isOpen={this.state.LinkModalOpen} toggle={this.modelToggle} add={this.addLink} />
+                <SelectPicModel isOpen={this.state.imgModelOpen} toggle={this.modelToggle} />
             </div>
 
         );
