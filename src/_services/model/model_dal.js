@@ -5,12 +5,12 @@ export const modelService_del = {
 };
 
 function uploadPic(file) {
-    return axios.put('http://www.mocky.io/v2/5af9348d320000f51886afe1', { name: file.name, file: file })
+    let a = file;
+    return axios.put('http://www.mocky.io/v2/5af9348d320000f51886afe1', { name: file.name, date: file })
         .then(response => {
-            // return Promise.reject(response.statusText);
-            console.log(response);
+            return Promise.resolve("https://d3cif2hu95s88v.cloudfront.net/live-site-2016/product-image/010/1517641044Flower_1-250x250.jpg");
         }).catch(error => {
-            console.log(error.response)
+            return Promise.reject(error.message);
         });
 
 }

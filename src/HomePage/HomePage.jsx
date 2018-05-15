@@ -6,16 +6,14 @@ import { Loader } from '../_components'
 import { MainViewComponent } from './mainView/mainView';
 import { ReactDOM } from 'react-dom';
 
-import { userActions } from '../_actions';
-
 class HomePage extends React.Component {
 
     constructor() {
         super();
         this.state = {};
     }
-    componentDidMount() {
-        this.props.dispatch(userActions.getAll());
+    
+    componentDidMount() {     
     }
 
     render() {

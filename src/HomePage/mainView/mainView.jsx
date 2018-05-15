@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import ReactQuill from 'react-quill';
-import { mainViewService_bl, mainViewService_del } from '../../_services';
+import { mainViewService_del } from '../../_services';
 import { mainViewConstants, CUSTOMBUTTONS } from '../../_constants';
 import { SelectLinkModel, SelectPicModel } from '../../Models';
 import $ from 'jquery';
@@ -23,6 +23,7 @@ class MainViewComponent extends React.Component {
             lastPosition: -1,
             saved: false,
             saveTrigger: 0,
+            test: []
         }
 
         this.dispatch = this.props.dispatch;
@@ -40,6 +41,7 @@ class MainViewComponent extends React.Component {
         this.modelToggle = this.modelToggle.bind(this);
         this.bindLinkToScrollFun = this.bindLinkToScrollFun.bind(this);
         this.save = this.save.bind(this);
+        this.prevComment = this.prevComment.bind(this);
 
     }
 
@@ -129,10 +131,9 @@ class MainViewComponent extends React.Component {
         const quill = this.reactQuillRef.getEditor();
         var range = quill.getSelection();
         let position = range ? range.index : 0;
-        mainViewService_bl.importPic()
-            .then(response =>
-                quill.clipboard.dangerouslyPasteHTML(position, '<iframe width="250" height="250"  src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Cochlospermum_regium_%28yellow_cotton_tree%29_flower.jpg/250px-Cochlospermum_regium_%28yellow_cotton_tree%29_flower.jpg" ></iframe >')
-            )
+        quill.insertText(position, '\n');
+        quill.clipboard.dangerouslyPasteHTML(position + 1, '<iframe width="250" height="250"  src="' + value + '" ></iframe >')
+
     }
 
     /* Add custom link to scroll inside quil editor */
@@ -168,10 +169,10 @@ class MainViewComponent extends React.Component {
     //if pressed form toolbar mast be chars selected
     //if pressed from inside the model will be closed
     modelToggle(buttonPressed, type) {
-        let a = type == undefined ? buttonPressed.currentTarget.id : type;
+        let modelType = type == undefined ? buttonPressed.currentTarget.id : type;
         buttonPressed = typeof (buttonPressed) === "boolean" ? true : false;
 
-        if (a == mainViewConstants.LINK) {
+        if (modelType == mainViewConstants.LINK) {
             const quill = this.reactQuillRef.getEditor();
             var selectionRange = quill.getSelection();
             if ((selectionRange && selectionRange.length > 0) || buttonPressed) {
@@ -181,7 +182,7 @@ class MainViewComponent extends React.Component {
                 });
             }
         }
-        else {
+        else if (modelType == mainViewConstants.ADD_IMG || buttonPressed) {
             this.setState({
                 imgModelOpen: !this.state.imgModelOpen,
             });
@@ -245,7 +246,7 @@ class MainViewComponent extends React.Component {
                     {view}
                 </div>
                 <SelectLinkModel isOpen={this.state.LinkModalOpen} toggle={this.modelToggle} add={this.addLink} />
-                <SelectPicModel isOpen={this.state.imgModelOpen} toggle={this.modelToggle} />
+                <SelectPicModel isOpen={this.state.imgModelOpen} toggle={this.modelToggle} addImgToEditor={this.addImageHandler} />
             </div>
 
         );

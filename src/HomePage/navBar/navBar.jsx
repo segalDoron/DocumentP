@@ -33,13 +33,7 @@ class NBarComponent extends React.Component {
   render() {
     const { view } = this.state
     return (
-      <ul className="nav bg-secondary">
-        <li className="nav-item">
-          <a className="nav-link active">  <button type="button" className="btn btn-light">Light</button></a>
-        </li>
-        <li className="nav-item">
-          <a className="nav-link" >  <button type="button" className="btn btn-light">Light</button></a>
-        </li>
+      <ul className="nav bg-secondary">   
         {view &&
           <li className="nav-item">
             <a className="nav-link" > <button type="button" className="btn btn-light" onClick={() => this.changeViewState(false)} ><FaEdit /><span className="p-l-10">edit</span></button></a>

@@ -21,10 +21,7 @@ class LoaderComponent extends React.Component {
                 <div className="loader-img">
                     <ScaleLoader color={'#000000'} height={70} width={10} loading={this.state.loading} />
                 </div>
-                {
-                    loading &&
-                    <div className="overlay"></div>
-                }
+                {loading && <div className="overlay"></div>}
             </div >
         );
     }

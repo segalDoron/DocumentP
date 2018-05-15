@@ -1,5 +1,5 @@
 import { treeConstants } from '../../_constants';
-import treeNode from '../../_constants/tree.constants'
+import treeNode from '../../_helpers/treeNode'
 
 
 export const treeService_bl = {
