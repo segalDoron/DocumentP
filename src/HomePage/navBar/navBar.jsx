@@ -33,20 +33,20 @@ class NBarComponent extends React.Component {
   render() {
     const { view } = this.state
     return (
-      <ul className="nav bg-secondary">   
+      <ul className="nav bg-secondary p-l-16_P" style={{ paddingLeft: '16.5%' }}>   
         {view &&
           <li className="nav-item">
             <a className="nav-link" > <button type="button" className="btn btn-light" onClick={() => this.changeViewState(false)} ><FaEdit /><span className="p-l-10">edit</span></button></a>
+          </li>
+        }        
+        {!view &&
+          <li className="nav-item">
+            <a className="nav-link" > <button type="button" className="btn btn-light" onClick={() => this.changeViewState(true)} ><FaEye /><span className="p-l-10">view</span></button></a>
           </li>
         }
         {!view &&
           < li className="nav-item">
             <a className="nav-link" > <button type="button" className="btn btn-light" onClick={this.save}  ><Floppy /><span className="p-l-10">save</span></button></a>
-          </li>
-        }
-        {!view &&
-          <li className="nav-item">
-            <a className="nav-link" > <button type="button" className="btn btn-light" onClick={() => this.changeViewState(true)} ><FaEye /><span className="p-l-10">view</span></button></a>
           </li>
         }
       </ul >

@@ -17,11 +17,17 @@ class SelectPicModelComponent extends React.Component {
     constructor(props) {
         super(props);
 
-        this.state = { file: File };
+        this.state = {
+            file: File,
+            nestedModal: false,
+            nestedModalText: ''
+        };
 
         this.addPic = this.addPic.bind(this);
         this.cancel = this.cancel.bind(this);
         this.onDrop = this.onDrop.bind(this);
+        this.toggleNested = this.toggleNested.bind(this);
+        this.onModelClose = this.onModelClose.bind(this);
 
     }
 
@@ -34,21 +40,32 @@ class SelectPicModelComponent extends React.Component {
     // on apply save and insert pic by response path
     addPic() {
         const file = this.state.file
-        modelService_del.uploadPic(file)
-            .then(response => {
-                this.props.addImgToEditor(response);
-                this.setState({ file: File })
-                this.props.toggle(true, "ADD_IMG")
-            })
-            .catch(error => {
-                alert("There has been a problem uploading this file");
-                this.setState({ file: File })
-                this.props.toggle(true, "ADD_IMG");
-            })
+        if (file.size > 0) {
+            modelService_del.uploadPic(file)
+                .then(response => {
+                    this.props.addImgToEditor(response);
+                    this.props.toggle(true, "ADD_IMG")
+                })
+                .catch(error => {   
+                    this.toggleNested(error.message);
+                })
+        }
+        else this.toggleNested("Please Add a file first");
+    }
+
+    toggleNested(msg) {
+        const errorMsg = typeof msg == "string" ? msg : ''
+        this.setState({
+            nestedModal: !this.state.nestedModal, nestedModalText: errorMsg
+        });
+    }
+
+    onModelClose() {
+        this.setState({ file: File })
     }
 
     cancel() {
-        this.setState({ file: File })
+        // this.setState({ file: File })
         this.props.toggle(true, "ADD_IMG")
     }
 
@@ -68,7 +85,7 @@ class SelectPicModelComponent extends React.Component {
 
         const hasFile = this.state.file.size > 0 ? true : false
         return (
-            <Modal style={modelWidth} isOpen={this.props.isOpen}>
+            <Modal style={modelWidth} toggle={this.toggle} isOpen={this.props.isOpen} onClosed={ this.onModelClose }>
                 <ModalHeader style={disableDrag}>Insert Picture</ModalHeader>
                 <ModalBody style={modelHeight}>
                     <div className="dropzone">
@@ -77,6 +94,12 @@ class SelectPicModelComponent extends React.Component {
                             {hasFile && <Preview file={this.state.file} />}
                         </Dropzone>
                     </div>
+                    <Modal isOpen={this.state.nestedModal} toggle={this.toggleNested}>
+                        <ModalBody>{this.state.nestedModalText}</ModalBody>
+                        <ModalFooter>
+                            <Button color="primary" onClick={this.toggleNested}>Dismiss</Button>
+                        </ModalFooter>
+                    </Modal>
                 </ModalBody>
                 <ModalFooter>
                     <Button color="primary" onClick={this.addPic}>Apply</Button>

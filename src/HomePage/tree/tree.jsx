@@ -192,7 +192,7 @@ class TreeComponent extends React.Component {
 
     const { treeFiltered: stateData, cursor } = this.state;
     return (
-      <nav className="col-md-2 d-none d-md-block sidebar pt-3">
+      <nav className="col-md-2 d-md-block pt-3">
         <div className="sidebar-sticky">
           <ul className="nav flex-column">
             <div>

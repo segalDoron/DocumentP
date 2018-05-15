@@ -240,7 +240,7 @@ class MainViewComponent extends React.Component {
         this.bindLinkToScrollFun();
         return (
 
-            <div className="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+            <div className="col-md-10 pt-3">
                 <div className="text-editor text-editor-size">
                     {view}
                 </div>
