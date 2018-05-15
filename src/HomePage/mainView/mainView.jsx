@@ -23,7 +23,6 @@ class MainViewComponent extends React.Component {
             lastPosition: -1,
             saved: false,
             saveTrigger: 0,
-            test: []
         }
 
         this.dispatch = this.props.dispatch;
