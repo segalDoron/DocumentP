@@ -4,11 +4,13 @@ import ReactQuill from 'react-quill';
 import { mainViewService_del } from '../../_services';
 import { mainViewConstants, CUSTOMBUTTONS } from '../../_constants';
 import { SelectLinkModel, SelectPicModel } from '../../Models';
+import { EmphBlot } from '../../_helpers/quill_blot';
 import $ from 'jquery';
 
-
-
 const { Quill, Mixin, Toolbar, Delta } = ReactQuill;
+
+ReactQuill.Quill.register('formats/em', EmphBlot);
+
 
 class MainViewComponent extends React.Component {
     constructor(props) {
@@ -23,6 +25,7 @@ class MainViewComponent extends React.Component {
             lastPosition: -1,
             saved: false,
             saveTrigger: 0,
+            comments: []
         }
 
         this.dispatch = this.props.dispatch;
@@ -34,25 +37,25 @@ class MainViewComponent extends React.Component {
         this.handleChange = this.handleChange.bind(this)
         this.addImageHandler = this.addImageHandler.bind(this);
         this.userView = this.userView.bind(this);
-        this.addComment = this.addComment.bind(this);
         this.scrollTo = this.scrollTo.bind(this);
         this.addLink = this.addLink.bind(this);
         this.modelToggle = this.modelToggle.bind(this);
         this.bindLinkToScrollFun = this.bindLinkToScrollFun.bind(this);
         this.save = this.save.bind(this);
         this.prevComment = this.prevComment.bind(this);
-
+        this.nextComment = this.nextComment.bind(this);
+        this.addComment = this.addComment.bind(this);
     }
 
     /* update component on props change */
     componentWillReceiveProps(nextProps, nextState) {
 
         // set view state
-        const nextView = nextProps.viewMode != undefined ? nextProps.viewMode : this.state.viewMode;
+        let nextView = nextProps.viewMode != undefined ? nextProps.viewMode : this.state.viewMode;
         this.setState({ viewMode: nextView })
 
         //set selected tree node
-        const selected = this.state.nodeSelected
+        let selected = this.state.nodeSelected
         if (nextProps.selectedTreeNode !== selected)
             this.setState({ nodeSelected: nextProps.selectedTreeNode })
 
@@ -63,15 +66,24 @@ class MainViewComponent extends React.Component {
         }
         this.setState({ saveTrigger: nextProps.saveTrigger })
 
+        //set Comments data
+        if (nextProps.comments != undefined) {
+            this.setState({ comments: nextProps.comments })
+        }
+
+
         this.scrollTo(nextProps.selectedTreeNode);
+
+        nextView = null;
+        selected = null;
 
         return false;
     }
 
     /* Updates component */
     componentDidUpdate(prevProps, prevState, snapshot) {
-        const prevView = prevState.viewMode == undefined ? false : prevState.viewMode;
-        const quillRef = this.reactQuillRef.getEditor();
+        let prevView = prevState.viewMode == undefined ? false : prevState.viewMode;
+        let quillRef = this.reactQuillRef.getEditor();
         if (!this.state.viewMode == prevView) {
             quillRef.enable(!this.state.viewMode);
             $(".ql-tooltip").remove();
@@ -85,27 +97,37 @@ class MainViewComponent extends React.Component {
             this.setState({ saved: false })
         }
         this.bindLinkToScrollFun();
+
+        prevView = null;
+        quillRef = null;
+    }
+
+    // upload data before the components upload
+    componentWillMount() {
+
     }
 
     /* Invoke once after component render method finishes */
     componentDidMount() {
         this.bindLinkToScrollFun();
         this.reactQuillRef.getEditor().enable(!this.state.viewMode);
-
     }
 
     save() {
-        const quill = this.reactQuillRef.getEditor();
-        var delta = quill.getContents();
+        let quill = this.reactQuillRef.getEditor();
+        let delta = quill.getContents();
         mainViewService_del.save(delta);
-        var range = quill.getSelection();
-        this.setState({ lastPosition: range.index });
+        let range = quill.getSelection();
+        this.setState({ lastPosition: range != null ? range.index : 0 });
 
+        quill = null;
+        delta = null;
+        range = null;
     }
 
     /*
     componentWillMount() {
-        const { selected } = this.props;
+        let { selected } = this.props;
         this.dispatch(mainViewActions.displayCurrentSelection(selected));
     }
     */
@@ -117,31 +139,42 @@ class MainViewComponent extends React.Component {
     /* update toolbar with custom buttons*/
     updateToolBar() {
         CUSTOMBUTTONS.forEach(customButton => {
-            var numberOfEditorButtons = $(".ql-toolbar").children().length;
-            var lastButton = $(".ql-toolbar").children().eq(numberOfEditorButtons - 1);
+            let numberOfEditorButtons = $(".ql-toolbar").children().length;
+            let lastButton = $(".ql-toolbar").children().eq(numberOfEditorButtons - 1);
             lastButton.after(customButton.button);
             lastButton = $(".ql-toolbar").children().eq(numberOfEditorButtons);
             lastButton.bind("click", this[customButton.handlerName]);
+
+            lastButton = null;
+            numberOfEditorButtons = null;
         })
     }
 
     /* custom image handler */
     addImageHandler(value) {
-        const quill = this.reactQuillRef.getEditor();
-        var range = quill.getSelection();
+        let quill = this.reactQuillRef.getEditor();
+        let range = quill.getSelection();
         let position = range ? range.index : 0;
         quill.insertText(position, '\n');
         quill.clipboard.dangerouslyPasteHTML(position + 1, '<iframe width="250" height="250"  src="' + value + '" ></iframe >')
+
+        quill = null;
+        range = null;
+        position = null;
 
     }
 
     /* Add custom link to scroll inside quil editor */
     addLink(elPosition) {
-        const quill = this.reactQuillRef.getEditor();
-        const { range } = this.state
-        var text = quill.getText(range.index, range.length);
+        let quill = this.reactQuillRef.getEditor();
+        let range = this.state.range;
+        let text = quill.getText(range.index, range.length);
         quill.deleteText(range.index, range.length);
         quill.clipboard.dangerouslyPasteHTML(range.index, '<a href="#' + elPosition + '?" ><b>' + text + '</b></a>');
+
+        quill = null;
+        range = null;
+        text = null;
     }
 
     /* remove link redirect and bind to scroll function */
@@ -151,17 +184,23 @@ class MainViewComponent extends React.Component {
         anchorList.each(function () {
             $(this).unbind("click", action);
             $(this).removeAttr("target");
-            var setTo = $(this).attr('href');
+            let setTo = $(this).attr('href');
             setTo = parseInt(setTo.slice(1, -1));
             $(this).bind("click", setTo, action);
         });
+
+        action = null;
+        anchorList = null;
     }
 
     /* scroll to quill editor position */
     scrollTo(selectedTreeNode) {
         let scrollTo = selectedTreeNode.data != undefined ? selectedTreeNode.data : selectedTreeNode;
-        const quillRef = this.reactQuillRef.getEditor();
+        let quillRef = this.reactQuillRef.getEditor();
         quillRef.setSelection(scrollTo, 0);
+
+        scrollTo = null;
+        quillRef = null;
     }
 
     /* toggle modle view */
@@ -172,8 +211,8 @@ class MainViewComponent extends React.Component {
         buttonPressed = typeof (buttonPressed) === "boolean" ? true : false;
 
         if (modelType == mainViewConstants.LINK) {
-            const quill = this.reactQuillRef.getEditor();
-            var selectionRange = quill.getSelection();
+            let quill = this.reactQuillRef.getEditor();
+            let selectionRange = quill.getSelection();
             if ((selectionRange && selectionRange.length > 0) || buttonPressed) {
                 this.setState({
                     LinkModalOpen: !this.state.LinkModalOpen,
@@ -190,10 +229,11 @@ class MainViewComponent extends React.Component {
 
 
     addComment() {
-        const quill = this.reactQuillRef.getEditor();
-        var range = quill.getSelection();
-        let position = range ? range.index : 0;
-        quill.insertText(position, '☑')
+        let range = this.reactQuillRef.getEditor().getSelection();
+        if (range) {
+            this.reactQuillRef.getEditor().format('em', true);
+        }
+        range = null;
     }
 
     prevComment() {
@@ -219,16 +259,18 @@ class MainViewComponent extends React.Component {
         }
 
         return (
-            <ReactQuill
-                ref={(el) => { this.reactQuillRef = el }}
-                style={{ height: height }}
-                placeholder={placeholder}
-                modules={mainViewConstants.EDITOR[modules]}
-                formats={mainViewConstants.EDITOR.formats}
-                value={this.state.text}
-                onChange={add.onChange}
-                theme={"snow"}
-            />
+            <div>
+                <ReactQuill
+                    ref={(el) => { this.reactQuillRef = el }}
+                    style={{ height: height }}
+                    placeholder={placeholder}
+                    modules={mainViewConstants.EDITOR[modules]}
+                    formats={mainViewConstants.EDITOR.formats}
+                    value={this.state.text}
+                    onChange={add.onChange}
+                    theme={"snow"}
+                />
+            </div>
         );
     }
 
@@ -259,12 +301,14 @@ function mapStateToProps(state) {
     const toggleNode = tree.toggleNode
     const viewMode = mainView.viewMode;
     const saveTrigger = mainView.saveTrigger
+    const comments = mainView.comments
     return {
         selectedTreeNode,
         viewMode,
         toggleNode,
         saveTrigger,
-        treeTriggered
+        treeTriggered,
+        comments
     };
 }
 

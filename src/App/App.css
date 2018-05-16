@@ -116,4 +116,18 @@
     user-select: none; /* CSS3 */
     -webkit-user-drag: none;  
   }
+  /*//////////////////////////////////////////////////////////////////
+  [ custom editor tag ]*/
+  .custom-em {
+    font-size:150%;
+    background-color:#ce7575 
+  }
+  
+  .custom-em::before {
+    content: '* '
+  }
+  
+  .custom-em::after {
+    content: ' *'
+  }
      

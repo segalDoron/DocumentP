@@ -3,6 +3,8 @@ import { Router } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { HomePage } from '../HomePage';
 import './App.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'react-quill/dist/quill.snow.css';
 
 
 class App extends React.Component {

@@ -7,9 +7,15 @@ export function mainView(state = {}, action) {
         isSelected: true,
         selected: action.selected
       };
+    case mainViewConstants.CURRENT_SELECTION:
+      return {
+        isSelected: true,
+        selected: action.selected
+      };
     case mainViewConstants.SAVE:
       return {
-        saveTrigger: action.clickE
+        saveTrigger: action.data.click,
+        comments: action.data.comm
       };
     case mainViewConstants.VIEW:
       return {

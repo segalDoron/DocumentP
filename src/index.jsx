@@ -4,13 +4,6 @@ import { Provider } from 'react-redux';
 
 import { store } from './_helpers';
 import { App } from './App';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'react-quill/dist/quill.snow.css';
-
-
-// setup fake backend
-import { configureFakeBackend } from './_helpers';
-configureFakeBackend();
 
 render(
     <Provider store={store}>
