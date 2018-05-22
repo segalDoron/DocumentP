@@ -6,6 +6,7 @@ export const treeService_bl = {
     setTree,
 };
 function setTree(editorHtml, hasHeaders, hasComments) {
+    const loggedUser = JSON.parse(sessionStorage.getItem('initData'));
     let lastHeader = '';
     let counter = 0;
     let newChild = new treeNode();
@@ -20,6 +21,8 @@ function setTree(editorHtml, hasHeaders, hasComments) {
 
         for (let index = 0; index < editorHtml.length; index++) {
             const element = editorHtml[index]
+
+            // enter if element is a header tag and construct header object
             if (element.nodeName == treeConstants.NODE_NAME.H1 ||
                 element.nodeName == treeConstants.NODE_NAME.H2 ||
                 element.nodeName == treeConstants.NODE_NAME.H3 ||
@@ -28,6 +31,7 @@ function setTree(editorHtml, hasHeaders, hasComments) {
                 let headerOrder = parseInt(element.localName[1]);
 
 
+                // if header is h1 push data and create a new parent obj
                 if (headerOrder == 1) {
                     if (newChild.containsData) treeData.push(newChild);
                     newChild = new treeNode();
@@ -43,17 +47,23 @@ function setTree(editorHtml, hasHeaders, hasComments) {
                 continue;
             }
 
+            //else continue counting 
             else {
-                if (element.children[0].hasAttribute('id') && element.children[0].attributes[1].value == "comment") {
+                // element is a comment
+                if (element.children.length > 0 && element.children[0].hasAttribute('id') && element.children[0].attributes[1].value == "comment") {
+                    // check if it is a new comment tag
+                    // if it is spatted by a new line it is a new comment
                     if (counter - lastComment.length != lastComment.position)
-                        commentsData.push({ name: "comment" + commentsData.length , position: counter })
+                        commentsData.push({ name: loggedUser.name, project: loggedUser.project, text: element.innerText, position: counter })
                     lastComment.position = counter;
                     lastComment.length = element.innerText.length + 1;
                     counter += element.innerText.length + 1;
 
                 }
+                // is element is empty br tag
                 else if ((element.children[0] && element.children[0].nodeName == treeConstants.NODE_NAME.BR)) counter += 1;
                 else {
+                    // chack if element is an ol tag
                     let addition = element.nodeName == treeConstants.NODE_NAME.OL || element.nodeName == treeConstants.NODE_NAME.UL ? 0 : 1;
                     counter += element.innerText.length + addition;
                 };
@@ -64,6 +74,7 @@ function setTree(editorHtml, hasHeaders, hasComments) {
     return Promise.resolve({ tree: treeData, comments: commentsData });
 }
 
+// insert header in the correct child order
 function orderHeaders(newChild, currentNodeRef, headerOrder, title, counter) {
     currentNodeRef = newChild;
     for (let x = 2; x <= headerOrder; x++) {
