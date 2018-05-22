@@ -37,16 +37,22 @@ class SelectPicModelComponent extends React.Component {
             this.setState({ file: files[0] });
     }
 
+
     // on apply save and insert pic by response path
     addPic() {
         const file = this.state.file
         if (file.size > 0) {
             modelService_del.uploadPic(file)
                 .then(response => {
-                    this.props.addImgToEditor(response);
-                    this.props.toggle(true, "ADD_IMG")
+                    const quill = this.props.quillRef.getEditor()
+                    quill.focus();
+                    let range = quill.getSelection();
+                    let position = range ? range.index : 0;
+                    quill.insertText(position, '\n');
+                    quill.clipboard.dangerouslyPasteHTML(position + 1, '<iframe width="250" height="250"  src="' + response + '" ></iframe >')
+                    this.props.toggle("ADD_IMG")
                 })
-                .catch(error => {   
+                .catch(error => {
                     this.toggleNested(error.message);
                 })
         }
@@ -65,8 +71,7 @@ class SelectPicModelComponent extends React.Component {
     }
 
     cancel() {
-        // this.setState({ file: File })
-        this.props.toggle(true, "ADD_IMG")
+        this.props.toggle("ADD_IMG")
     }
 
     render() {
@@ -85,12 +90,12 @@ class SelectPicModelComponent extends React.Component {
 
         const hasFile = this.state.file.size > 0 ? true : false
         return (
-            <Modal style={modelWidth} toggle={this.toggle} isOpen={this.props.isOpen} onClosed={ this.onModelClose }>
+            <Modal style={modelWidth} toggle={this.toggle} isOpen={this.props.isOpen} onClosed={this.onModelClose}>
                 <ModalHeader style={disableDrag}>Insert Picture</ModalHeader>
                 <ModalBody style={modelHeight}>
                     <div className="dropzone">
-                        <Dropzone disableClick={true} className="dragDropArea" activeClassName="activeDrop" multiple={false} onDrop={this.onDrop}  >
-                            {!hasFile && <p className="dragAndDropPlacHolder" unselectable="on">Drag and Drop your file here </p>}
+                        <Dropzone className="dragDropArea" activeClassName="activeDrop" multiple={false} onDrop={this.onDrop}  >
+                            {!hasFile && <p className="dragAndDropPlacHolder" unselectable="on">Click here or Drag and Drop your file here </p>}
                             {hasFile && <Preview file={this.state.file} />}
                         </Dropzone>
                     </div>

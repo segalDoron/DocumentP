@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import ReactQuill from 'react-quill';
 import { mainViewService_del } from '../../_services';
 import { mainViewConstants, CUSTOMBUTTONS } from '../../_constants';
-import { SelectLinkModel, SelectPicModel } from '../../Models';
+import { SelectLinkModel, SelectPicModel, ShowAllComments } from '../../Models';
 import { EmphBlot } from '../../_helpers/quill_blot';
 import $ from 'jquery';
 
@@ -18,14 +18,17 @@ class MainViewComponent extends React.Component {
         this.state = {
             LinkModalOpen: false,
             imgModelOpen: false,
+            commentsModelOpen: false,
             text: "",
             nodeSelected: "",
             viewMode: true,
             content: Delta,
-            lastPosition: -1,
+            lastPosition: 0,
             saved: false,
             saveTrigger: 0,
-            comments: []
+            commentsArray: [],
+            AddComment: true,
+            commentPointer: -1,
         }
 
         this.dispatch = this.props.dispatch;
@@ -35,10 +38,8 @@ class MainViewComponent extends React.Component {
 
         // bind functions
         this.handleChange = this.handleChange.bind(this)
-        this.addImageHandler = this.addImageHandler.bind(this);
         this.userView = this.userView.bind(this);
         this.scrollTo = this.scrollTo.bind(this);
-        this.addLink = this.addLink.bind(this);
         this.modelToggle = this.modelToggle.bind(this);
         this.bindLinkToScrollFun = this.bindLinkToScrollFun.bind(this);
         this.save = this.save.bind(this);
@@ -67,8 +68,8 @@ class MainViewComponent extends React.Component {
         this.setState({ saveTrigger: nextProps.saveTrigger })
 
         //set Comments data
-        if (nextProps.comments != undefined) {
-            this.setState({ comments: nextProps.comments })
+        if (nextProps.commentsArray != undefined) {
+            this.setState({ commentsArray: nextProps.commentsArray })
         }
 
 
@@ -125,13 +126,6 @@ class MainViewComponent extends React.Component {
         range = null;
     }
 
-    /*
-    componentWillMount() {
-        let { selected } = this.props;
-        this.dispatch(mainViewActions.displayCurrentSelection(selected));
-    }
-    */
-
     handleChange(value) {
         this.setState({ text: value })
     }
@@ -148,33 +142,6 @@ class MainViewComponent extends React.Component {
             lastButton = null;
             numberOfEditorButtons = null;
         })
-    }
-
-    /* custom image handler */
-    addImageHandler(value) {
-        let quill = this.reactQuillRef.getEditor();
-        let range = quill.getSelection();
-        let position = range ? range.index : 0;
-        quill.insertText(position, '\n');
-        quill.clipboard.dangerouslyPasteHTML(position + 1, '<iframe width="250" height="250"  src="' + value + '" ></iframe >')
-
-        quill = null;
-        range = null;
-        position = null;
-
-    }
-
-    /* Add custom link to scroll inside quil editor */
-    addLink(elPosition) {
-        let quill = this.reactQuillRef.getEditor();
-        let range = this.state.range;
-        let text = quill.getText(range.index, range.length);
-        quill.deleteText(range.index, range.length);
-        quill.clipboard.dangerouslyPasteHTML(range.index, '<a href="#' + elPosition + '?" ><b>' + text + '</b></a>');
-
-        quill = null;
-        range = null;
-        text = null;
     }
 
     /* remove link redirect and bind to scroll function */
@@ -206,40 +173,53 @@ class MainViewComponent extends React.Component {
     /* toggle modle view */
     //if pressed form toolbar mast be chars selected
     //if pressed from inside the model will be closed
-    modelToggle(buttonPressed, type) {
-        let modelType = type == undefined ? buttonPressed.currentTarget.id : type;
-        buttonPressed = typeof (buttonPressed) === "boolean" ? true : false;
+    modelToggle(buttonPressed) {
+        let modelType = typeof buttonPressed == "object" ? buttonPressed.currentTarget.id : buttonPressed;
 
-        if (modelType == mainViewConstants.LINK) {
-            let quill = this.reactQuillRef.getEditor();
-            let selectionRange = quill.getSelection();
-            if ((selectionRange && selectionRange.length > 0) || buttonPressed) {
-                this.setState({
-                    LinkModalOpen: !this.state.LinkModalOpen,
-                    range: selectionRange
-                });
-            }
-        }
-        else if (modelType == mainViewConstants.ADD_IMG || buttonPressed) {
-            this.setState({
-                imgModelOpen: !this.state.imgModelOpen,
-            });
+        switch (modelType) {
+            case mainViewConstants.LINK:
+                let quill = this.reactQuillRef.getEditor();
+                let selectionRange = quill.getSelection();
+                if ((selectionRange && selectionRange.length > 0)) { this.setState({ LinkModalOpen: true }); }
+                break;
+            case mainViewConstants.CLOSE_LINK_MODULE:
+                this.setState({ LinkModalOpen: false });
+                break;
+            case mainViewConstants.ADD_IMG:
+                this.setState({ imgModelOpen: !this.state.imgModelOpen, });
+                break;
+
+            case mainViewConstants.VIEW_COMMENTS:
+                this.setState({ commentsModelOpen: !this.state.commentsModelOpen })
+                break;
         }
     }
-
 
     addComment() {
         let range = this.reactQuillRef.getEditor().getSelection();
         if (range) {
-            this.reactQuillRef.getEditor().format('em', true);
+            this.reactQuillRef.getEditor().format('em', this.state.AddComment);
         }
+
+        this.state.AddComment ? $('#btn_comment').addClass("ql-active") : $('#btn_comment').removeClass("ql-active")
+        this.setState({ AddComment: !this.state.AddComment })
         range = null;
     }
 
     prevComment() {
+        if (this.state.commentPointer > 0) {
+            let comment = this.state.commentsArray[this.state.commentPointer - 1]
+            this.reactQuillRef.getEditor().setSelection(comment.position, 0);
+            this.setState({ commentPointer: this.state.commentPointer - 1 })
+        }
     }
 
     nextComment() {
+        if (this.state.commentPointer < this.state.commentsArray.length - 1) {
+            let comment = this.state.commentsArray[this.state.commentPointer + 1]
+            this.reactQuillRef.getEditor().setSelection(comment.position, 0);
+            this.setState({ commentPointer: this.state.commentPointer + 1 })
+        }
     }
 
     /* returns element chosen view mode */
@@ -286,8 +266,9 @@ class MainViewComponent extends React.Component {
                 <div className="text-editor text-editor-size">
                     {view}
                 </div>
-                <SelectLinkModel isOpen={this.state.LinkModalOpen} toggle={this.modelToggle} add={this.addLink} />
-                <SelectPicModel isOpen={this.state.imgModelOpen} toggle={this.modelToggle} addImgToEditor={this.addImageHandler} />
+                <SelectLinkModel isOpen={this.state.LinkModalOpen} toggle={this.modelToggle} add={this.addLink} quillRef={this.reactQuillRef} />
+                <SelectPicModel isOpen={this.state.imgModelOpen} toggle={this.modelToggle} quillRef={this.reactQuillRef} />
+                <ShowAllComments isOpen={this.state.commentsModelOpen} toggle={this.modelToggle} quillRef={this.reactQuillRef} />
             </div>
 
         );
@@ -301,14 +282,14 @@ function mapStateToProps(state) {
     const toggleNode = tree.toggleNode
     const viewMode = mainView.viewMode;
     const saveTrigger = mainView.saveTrigger
-    const comments = mainView.comments
+    const commentsArray = mainView.comments
     return {
         selectedTreeNode,
         viewMode,
         toggleNode,
         saveTrigger,
         treeTriggered,
-        comments
+        commentsArray
     };
 }
 
