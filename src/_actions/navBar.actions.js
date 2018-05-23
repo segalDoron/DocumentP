@@ -1,4 +1,4 @@
-import { navBarConstants, mainViewConstants, loaderConstants } from '../_constants';
+import { navBarConstants, loaderConstants } from '../_constants';
 import { treeService_bl } from '../_services';
 import $ from 'jquery';
 
@@ -32,6 +32,6 @@ function save(clickE) {
         );
         function showLoader(show) { return { type: loaderConstants.SHOW_LOADER, show } }
         function setNewTree(newTree) { return { type: navBarConstants.NEW_TREE, newTree } }
-        function saveView(clickE, comments) { return { type: mainViewConstants.SAVE, data: { click: clickE, comm: comments } } }
+        function saveView(clickE, comments) { return { type: navBarConstants.SAVE, data: { click: clickE, comm: comments } } }
     }
 }

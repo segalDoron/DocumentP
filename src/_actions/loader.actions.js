@@ -1,6 +1,6 @@
 import { loaderConstants } from '../_constants';
 
-export const loaderAction = {
+export const loaderActions = {
     show
 };
 

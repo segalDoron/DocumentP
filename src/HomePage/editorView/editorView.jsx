@@ -1,8 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import ReactQuill from 'react-quill';
-import { mainViewService_del } from '../../_services';
-import { mainViewConstants, CUSTOMBUTTONS } from '../../_constants';
+import { viewService_del } from '../../_services';
+import { editorViewConstants, EditorCustomButtons } from '../../_constants';
 import { SelectLinkModel, SelectPicModel, ShowAllComments } from '../../Models';
 import { EmphBlot } from '../../_helpers/quill_blot';
 import $ from 'jquery';
@@ -12,7 +12,7 @@ const { Quill, Mixin, Toolbar, Delta } = ReactQuill;
 ReactQuill.Quill.register('formats/em', EmphBlot);
 
 
-class MainViewComponent extends React.Component {
+class EditorViewComponent extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
@@ -117,7 +117,7 @@ class MainViewComponent extends React.Component {
     save() {
         let quill = this.reactQuillRef.getEditor();
         let delta = quill.getContents();
-        mainViewService_del.save(delta);
+        viewService_del.save(delta);
         let range = quill.getSelection();
         this.setState({ lastPosition: range != null ? range.index : 0 });
 
@@ -132,7 +132,7 @@ class MainViewComponent extends React.Component {
 
     /* update toolbar with custom buttons*/
     updateToolBar() {
-        CUSTOMBUTTONS.forEach(customButton => {
+        EditorCustomButtons.forEach(customButton => {
             let numberOfEditorButtons = $(".ql-toolbar").children().length;
             let lastButton = $(".ql-toolbar").children().eq(numberOfEditorButtons - 1);
             lastButton.after(customButton.button);
@@ -177,19 +177,19 @@ class MainViewComponent extends React.Component {
         let modelType = typeof buttonPressed == "object" ? buttonPressed.currentTarget.id : buttonPressed;
 
         switch (modelType) {
-            case mainViewConstants.LINK:
+            case editorViewConstants.LINK:
                 let quill = this.reactQuillRef.getEditor();
                 let selectionRange = quill.getSelection();
                 if ((selectionRange && selectionRange.length > 0)) { this.setState({ LinkModalOpen: true }); }
                 break;
-            case mainViewConstants.CLOSE_LINK_MODULE:
+            case editorViewConstants.CLOSE_LINK_MODULE:
                 this.setState({ LinkModalOpen: false });
                 break;
-            case mainViewConstants.ADD_IMG:
+            case editorViewConstants.ADD_IMG:
                 this.setState({ imgModelOpen: !this.state.imgModelOpen, });
                 break;
 
-            case mainViewConstants.VIEW_COMMENTS:
+            case editorViewConstants.VIEW_COMMENTS:
                 this.setState({ commentsModelOpen: !this.state.commentsModelOpen })
                 break;
         }
@@ -230,12 +230,12 @@ class MainViewComponent extends React.Component {
         let add = { onChange: () => { } };
         if (!viewMode || save) {
             height = '78vh';
-            modules = mainViewConstants.EDITOR_MODE
+            modules = editorViewConstants.EDITOR_MODE
             add.onChange = this.handleChange;
         }
         else {
             height = '88vh';
-            modules = mainViewConstants.VIEWER_MODE
+            modules = editorViewConstants.VIEWER_MODE
         }
 
         return (
@@ -244,8 +244,8 @@ class MainViewComponent extends React.Component {
                     ref={(el) => { this.reactQuillRef = el }}
                     style={{ height: height }}
                     placeholder={placeholder}
-                    modules={mainViewConstants.EDITOR[modules]}
-                    formats={mainViewConstants.EDITOR.formats}
+                    modules={editorViewConstants.EDITOR[modules]}
+                    formats={editorViewConstants.EDITOR.formats}
                     value={this.state.text}
                     onChange={add.onChange}
                     theme={"snow"}
@@ -276,13 +276,13 @@ class MainViewComponent extends React.Component {
 }
 
 function mapStateToProps(state) {
-    const { tree, navBar, mainView } = state;
+    const { tree, navBar, editorView } = state;
     const selectedTreeNode = tree.selected || 0;
     const treeTriggered = tree.nodeTriggered
     const toggleNode = tree.toggleNode
-    const viewMode = mainView.viewMode;
-    const saveTrigger = mainView.saveTrigger
-    const commentsArray = mainView.comments
+    const viewMode = editorView.viewMode;
+    const saveTrigger = editorView.saveTrigger
+    const commentsArray = editorView.comments
     return {
         selectedTreeNode,
         viewMode,
@@ -293,7 +293,7 @@ function mapStateToProps(state) {
     };
 }
 
-const MainView = connect(mapStateToProps)(MainViewComponent);
-export { MainView as MainViewComponent };
+const EditorView = connect(mapStateToProps)(EditorViewComponent);
+export { EditorView as EditorViewComponent };
 
 

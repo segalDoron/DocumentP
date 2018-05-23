@@ -13,15 +13,15 @@ class App extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            initData: {
-                userName: '',
-                projectName: ''
-            }
+            userSet : false
         };
     }
 
     componentWillMount() {
-        appService_del.getInitParams();
+        appService_del.getInitParams().then(response => {
+            sessionStorage.setItem('initData', JSON.stringify(response));
+            this.setState({userSet:true});
+        });
     }
 
     componentDidMount() {
@@ -35,7 +35,7 @@ class App extends React.Component {
     render() {
         return (
             <div>
-                <HomePage />
+                <HomePage userStat={this.state.userSet} />
             </div>
         );
     }

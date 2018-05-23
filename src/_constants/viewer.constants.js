@@ -1,50 +1,15 @@
 
-export const mainViewConstants = {
-    LINK: "LINK",
-    ADD_IMG: "ADD_IMG",
-    VIEW_COMMENTS: "VIEW_COMMENTS",
-    CURRENT_SELECTION: 'CURRENT_NODE_SELECTION',
-    CLOSE_LINK_MODULE: 'CLOSE_LINK_MODULE',
+export const viewerConstants = {
     VIEW: 'VIEW',
     SAVE: 'SAVE',
-    EDITOR_MODE: 'editorModule',
-    VIEWER_MODE: 'viewerModule',
+    EDITOR_MODE: 'editModule',
+    VIEWER_MODE: 'viewModule',
 
     EDITOR: {
-        editorModule: {
-            toolbar: [
-                ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
-                ['blockquote'],                                   // add quot and code block
-                [{ 'header': 1 }, { 'header': 2 }],               // custom button values
-                [{ 'list': 'ordered' }, { 'list': 'bullet' }],    // list type
-                [{ 'script': 'sub' }, { 'script': 'super' }],     // superscript/subscript
-                [{ 'indent': '-1' }, { 'indent': '+1' }],         // outdent/indent          
-                [{ 'direction': 'rtl' }],                         // text direction
-                [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
-                [{ 'header': [1, 2, 3, 4, false] }],              // number of headers order
-                [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
-                [{ 'font': [] }],                                 // font
-                [{ 'align': [] }],                                // align                
-            ]
-            /*
-            for pic
-               toolbar: {
-                container: [["bold", "italic"]['link']],
-                handlers: {
-                    // handlers object will be merged with default handlers object
-                    'link': function (value) {
-                        if (value) {
-                            var href = prompt('Enter the URL');
-                            this.quill.format('link', href);
-                        } else {
-                            this.quill.format('link', false);
-                        }
-                    }
-                }
-            }
-            */
+        editModule: {
+            toolbar: []
         },
-        viewerModule: {
+        viewModule: {
             toolbar: false
         }
     },
@@ -52,39 +17,8 @@ export const mainViewConstants = {
 }
 
 
-
-
-export const CUSTOMBUTTONS =
-    [
-        {
-            // add link
-            button: `
-                    <span class='ql-formats' id="LINK">
-                        <button class="ql-link" type="button">
-                           <svg viewBox='0 0 18 18'>
-                                <line class="ql-stroke" x1="7" x2="11" y1="7" y2="11"></line>
-                                <path class="ql-even ql-stroke" d="M8.9,4.577a3.476,3.476,0,0,1,.36,4.679A3.476,3.476,0,0,1,4.577,8.9C3.185,7.5,2.035,6.4,4.217,4.217S7.5,3.185,8.9,4.577Z"></path> <path class="ql-even ql-stroke" d="M13.423,9.1a3.476,3.476,0,0,0-4.679-.36,3.476,3.476,0,0,0,.36,4.679c1.392,1.392,2.5,2.542,4.679.36S14.815,10.5,13.423,9.1Z"></path> 
-                            </svg>
-                        </button>
-                    </span>`,
-            order: -1,
-            handlerName: 'modelToggle'
-        },
-        {
-            // add image
-            button: `
-                    <span class='ql-formats' id="ADD_IMG">
-                        <button class='ql-image' type='button'>
-                           <svg viewBox='0 0 18 18'>
-                               <rect class='ql-stroke' height='10' width='12' x='3' y='4'></rect>
-                               <circle class='ql-fill' cx='6' cy='7' r='1'></circle>
-                               <polyline class='ql-even ql-fill' points='5 12 5 11 7 9 8 10 11 7 13 9 13 12 5 12'></polyline>
-                            </svg>
-                        </button>
-                    </span>`,
-            order: -1,
-            handlerName: 'modelToggle'
-        },
+export const ViewerCustomButtons =
+    [            
         {
             // add comment
             button: `

@@ -5,7 +5,6 @@ const { Quill } = ReactQuill;
 let Inline = ReactQuill.Quill.import('blots/inline');
 export class EmphBlot extends Inline {
     static create(value) {
-        this
         let node = super.create();
         node.setAttribute('id', 'comment');
         return node;

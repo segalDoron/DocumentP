@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export const mainViewService_del = {
+export const viewService_del = {
     getView,
     save
 };

@@ -5,11 +5,13 @@ export const appService_del = {
 };
 
 function getInitParams() {
-    return axios.get('http://www.mocky.io/v2/5b02bd973000006e00cee312')
+    // http://www.mocky.io/v2/5b03bcf52f00008f05e7a67d  --> view
+    return axios.get('http://www.mocky.io/v2/5b03bcd12f00007900e7a67b')
         .then(response => {
-            sessionStorage.setItem('initData', JSON.stringify(response.data));
+            return Promise.resolve(response.data);
         }).catch(error => {
             console.log('Error fatching data')
+            return Promise.reject([]);
         });
 
 }

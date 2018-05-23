@@ -50,15 +50,18 @@ function setTree(editorHtml, hasHeaders, hasComments) {
             //else continue counting 
             else {
                 // element is a comment
-                if (element.children.length > 0 && element.children[0].hasAttribute('id') && element.children[0].attributes[1].value == "comment") {
-                    // check if it is a new comment tag
-                    // if it is spatted by a new line it is a new comment
-                    if (counter - lastComment.length != lastComment.position)
-                        commentsData.push({ name: loggedUser.name, project: loggedUser.project, text: element.innerText, position: counter })
-                    lastComment.position = counter;
-                    lastComment.length = element.innerText.length + 1;
-                    counter += element.innerText.length + 1;
-
+                if (element.children.length > 0 && element.children[0].hasAttribute('id')) {
+                    if (element.children.length == 1  /*&& element.children[0].attributes[1].value == "comment"*/) {
+                        // check if it is a new comment tag if it is spatted by a new line it is a new comment
+                        if (counter - lastComment.length != lastComment.position)
+                            commentsData.push({ name: loggedUser.name, project: loggedUser.project, text: element.innerText, position: counter })
+                        lastComment.position = counter;
+                        lastComment.length = element.innerText.length + 1;
+                        counter += element.innerText.length + 1;
+                    }
+                    else {
+                        getIndicesOf('<em class="custom-em" id="comment">', element.innerHTML)
+                    }
                 }
                 // is element is empty br tag
                 else if ((element.children[0] && element.children[0].nodeName == treeConstants.NODE_NAME.BR)) counter += 1;
@@ -90,4 +93,18 @@ function orderHeaders(newChild, currentNodeRef, headerOrder, title, counter) {
             break;
         }
     }
+}
+
+function getIndicesOf(searchStr, str) {
+    var searchStrLen = searchStr.length;
+    if (searchStrLen == 0) {
+        return [];
+    }
+    var startIndex = 0, index, indices = [];
+
+    while ((index = str.indexOf(searchStr, startIndex)) > -1) {
+        indices.push(index);
+        startIndex = index + searchStrLen;
+    }
+    return indices;
 }

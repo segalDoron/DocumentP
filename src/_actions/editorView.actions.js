@@ -1,14 +1,14 @@
-import { mainViewConstants } from '../_constants';
-import { mainViewService_del } from '../_services';
+import { editorViewConstants } from '../_constants';
+import { viewService_del } from '../_services';
 
-export const mainViewActions = {
+export const editorViewActions = {
     displayCurrentSelection,
 };
 
 function displayCurrentSelection(selected) {
     return dispatch => {
         dispatch(setCurrentView({ selected }));
-        mainViewService_del.getView(selected)
+        viewService_del.getView(selected)
             .then(
                 response => {
                     return 'good';
@@ -21,6 +21,6 @@ function displayCurrentSelection(selected) {
     function setCurrentView(selected) {
         if (selected)
             selected = 'is Good';
-        return { type: mainViewConstants.CURRENT_SELECTION, selected }
+        return { type: editorViewConstants.CURRENT_SELECTION, selected }
     }
 }
