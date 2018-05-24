@@ -70,6 +70,7 @@ class ShowAllCommentsComponent extends React.Component {
 
     goTo(elePosition) {
         this.props.quillRef.getEditor().setSelection(elePosition, 0);
+        this.props.quillRef.getEditor().blur();
         this.props.toggle("VIEW_COMMENTS")
     }
 

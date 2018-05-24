@@ -7,7 +7,19 @@ export const viewerConstants = {
 
     EDITOR: {
         editModule: {
-            toolbar: []
+            toolbar: [],
+            keyboard: {
+                bindings: {                  
+                    // Disable ctrl + v in viewer mode
+                    disablePaste: {
+                        key: 'v',
+                        ctrlKey : true,
+                        handler: (range, context) => {
+                            // do nothing
+                        }
+                    }
+                }
+            }
         },
         viewModule: {
             toolbar: false
@@ -18,7 +30,7 @@ export const viewerConstants = {
 
 
 export const ViewerCustomButtons =
-    [            
+    [
         {
             // add comment
             button: `

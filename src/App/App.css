@@ -124,10 +124,10 @@
   }
   
   .custom-em::before {
-    content: '* '
+    content: '*'
   }
   
   .custom-em::after {
-    content: ' *'
+    content: '*'
   }
      

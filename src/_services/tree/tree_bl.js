@@ -7,15 +7,13 @@ export const treeService_bl = {
 };
 function setTree(editorHtml, hasHeaders, hasComments) {
     const loggedUser = JSON.parse(sessionStorage.getItem('initData'));
-    let lastHeader = '';
-    let counter = 0;
+    let counter = { counter: 0 };
     let newChild = new treeNode();
-    let firstHeader = true;
     let lastHeaderOrder = -1;
     let currentNodeRef;
     let treeData = [];
-    let commentsData = []
-    let lastComment = { length: null, position: null }
+    let commentsData = [];
+    let lastComment = { length: null, position: null };
 
     if (hasHeaders.length > 0 || hasComments.length > 0) {
 
@@ -36,12 +34,12 @@ function setTree(editorHtml, hasHeaders, hasComments) {
                     if (newChild.containsData) treeData.push(newChild);
                     newChild = new treeNode();
                     newChild.name = element.innerText.trim();
-                    newChild.position = counter;
+                    newChild.position = counter.counter;
                     newChild.order = 1;
                     currentNodeRef = newChild;
                 }
                 else orderHeaders(newChild, currentNodeRef, headerOrder, element.innerText, counter);
-                counter += 1 + element.innerText.length;
+                counter.counter += 1 + element.innerText.length;
                 newChild.containsData = true;
                 lastHeaderOrder = headerOrder;
                 continue;
@@ -50,26 +48,23 @@ function setTree(editorHtml, hasHeaders, hasComments) {
             //else continue counting 
             else {
                 // element is a comment
-                if (element.children.length > 0 && element.children[0].hasAttribute('id')) {
-                    if (element.children.length == 1  /*&& element.children[0].attributes[1].value == "comment"*/) {
-                        // check if it is a new comment tag if it is spatted by a new line it is a new comment
-                        if (counter - lastComment.length != lastComment.position)
-                            commentsData.push({ name: loggedUser.name, project: loggedUser.project, text: element.innerText, position: counter })
-                        lastComment.position = counter;
-                        lastComment.length = element.innerText.length + 1;
-                        counter += element.innerText.length + 1;
-                    }
-                    else {
-                        getIndicesOf('<em class="custom-em" id="comment">', element.innerHTML)
-                    }
-                }
+                if (element.children.length > 0 && element.children[0].hasAttribute('id'))
+                    // one in a paragraph
+                    if (element.children.length == 1)
+                        addToCommentToArray(element, counter, lastComment, commentsData, loggedUser)
+                    // more then one in the same paragraph
+                    else
+                        addParagraphChildrenComments(element, counter, commentsData, loggedUser)
+
                 // is element is empty br tag
-                else if ((element.children[0] && element.children[0].nodeName == treeConstants.NODE_NAME.BR)) counter += 1;
-                else {
-                    // chack if element is an ol tag
-                    let addition = element.nodeName == treeConstants.NODE_NAME.OL || element.nodeName == treeConstants.NODE_NAME.UL ? 0 : 1;
-                    counter += element.innerText.length + addition;
-                };
+                else
+                    if (element.children[0] && element.children[0].nodeName == treeConstants.NODE_NAME.BR)
+                        counter.counter += 1;
+                    else {
+                        // check if element is an ol tag
+                        let addition = element.nodeName == treeConstants.NODE_NAME.OL || element.nodeName == treeConstants.NODE_NAME.UL ? 0 : 1;
+                        counter.counter += element.innerText.length + addition;
+                    };
             }
         }
         treeData.push(newChild);
@@ -89,10 +84,28 @@ function orderHeaders(newChild, currentNodeRef, headerOrder, title, counter) {
             currentNodeRef = currentNodeRef.children[currentNodeRef.children.length - 1];
         }
         else {
-            currentNodeRef.children.push(new treeNode(title.trim(), false, counter, x, []))
+            currentNodeRef.children.push(new treeNode(title.trim(), false, counter.counter, x, []))
             break;
         }
     }
+}
+
+function addToCommentToArray(element, counter, lastComment, commentsData, loggedUser) {
+    // check if it is a new comment tag if it is spatted by a new line it is a new comment
+    if (counter.counter - lastComment.length != lastComment.position)
+        commentsData.push({ name: loggedUser.name, project: loggedUser.project, text: element.innerText, position: counter.counter })
+    lastComment.position = counter.counter;
+    lastComment.length = element.innerText.length + 1;
+    counter.counter += element.innerText.length + 1;
+}
+
+function addParagraphChildrenComments(element, counter, commentsData, loggedUser) {
+    // find comments location inside the paragraph
+    let childrenCommentPosition = getIndicesOf('<em class="custom-em" id="comment">', element.innerHTML)
+    childrenCommentPosition.forEach((childPosition, index) => {
+        commentsData.push({ name: loggedUser.name, project: loggedUser.project, text: element.children[index].innerHTML, position: childPosition + counter.counter })
+    })
+    counter.counter += element.innerText.length + 1;
 }
 
 function getIndicesOf(searchStr, str) {
