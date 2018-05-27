@@ -4,16 +4,18 @@ export const viewerConstants = {
     SAVE: 'SAVE',
     EDITOR_MODE: 'editModule',
     VIEWER_MODE: 'viewModule',
+    DELETE: 'DELETE',
+    SELECTION_CHANGE: 'SELECTION_CHANGE',
 
     EDITOR: {
         editModule: {
             toolbar: [],
             keyboard: {
-                bindings: {                  
+                bindings: {
                     // Disable ctrl + v in viewer mode
                     disablePaste: {
                         key: 'v',
-                        ctrlKey : true,
+                        ctrlKey: true,
                         handler: (range, context) => {
                             // do nothing
                         }

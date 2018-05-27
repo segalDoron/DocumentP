@@ -24,7 +24,15 @@ class ViewerComponent extends React.Component {
                     this.reactQuillRef.getEditor().enable(false);
                     $(".ql-tooltip").remove();
                     if (!this.state.viewMode)
-                        this.updateToolBar()                        
+                        this.updateToolBar()  
+                        
+                        fg
+                        fgh
+                        \n
+
+                        fgh
+                        fgh
+
                 `
             ,
             nodeSelected: "",
@@ -41,6 +49,7 @@ class ViewerComponent extends React.Component {
 
         this.dispatch = this.props.dispatch;
         this.commentClicked = false;
+        this.keepChecking = false;
 
         // create quill ref
         this.reactQuillRef = null;
@@ -100,28 +109,12 @@ class ViewerComponent extends React.Component {
             if (!this.state.viewMode)
                 this.updateToolBar()
 
-            // enable delete only if it is a comment tag
-            this.reactQuillRef.getEditor().keyboard.addBinding({
-                key: 8,
-            }, (range, context) => {
-                this.reactQuillRef.getEditor();
-            });
-
             // disable edit mode when clicked out of a comment
             this.reactQuillRef.getEditor().on('editor-change', (eventName, ...args) => {
                 let quillRef = this.reactQuillRef.getEditor();
-                if (this.commentClicked) {
-                    if (eventName === 'selection-change') {
-                        let format = quillRef.getFormat(args[1].index, 1);
-                        let endFormat = quillRef.getFormat(args[0].index, 1);
-                        let startFormat = quillRef.getFormat(args[0].index == 0 ? 0 : args[0].index - 1, 1);
-                        if (!(startFormat['em'] || endFormat['em'])) {
-                            quillRef.enable(false);
-                            this.commentClicked = false;
-                            $('#btn_comment').removeClass("ql-active")
-                        }
-                    }
-                }
+                if (this.commentClicked && this.keepChecking)
+                    if (eventName === 'selection-change')
+                        this.onCursorChange(quillRef, args);
             });
         }
 
@@ -204,15 +197,16 @@ class ViewerComponent extends React.Component {
         this.setState({ commentsModelOpen: !this.state.commentsModelOpen })
     }
 
-
     addComment() {
-        const clicked = !this.commentClicked;
+
         const quillRef = this.reactQuillRef.getEditor();
-        quillRef.enable(clicked);
         let range = quillRef.getSelection();
+        if (range && range.length != 0) return;
 
+        const clicked = !this.commentClicked;
+        quillRef.enable(clicked);
 
-        if (range && range.length === 0) {
+        if (range) {
             let startIndex = range.index !== 0 ? range.index - 1 : 0;
 
             let text = quillRef.getText(startIndex, 1);
@@ -224,15 +218,17 @@ class ViewerComponent extends React.Component {
                 quillRef.insertText(range.index, '\n');
                 quillRef.setSelection(range.index + 1, 0);
             }
+            
+            !this.commentClicked ? $('#btn_comment').addClass("ql-active") : $('#btn_comment').removeClass("ql-active")
+            this.commentClicked = this.keepChecking = clicked;
+
             if (!(/\S/.test(text))) {
                 quillRef.deleteText(startIndex, 2)
             }
-            if (clicked)
-                quillRef.format('em', clicked);
-        }
 
-        !this.commentClicked ? $('#btn_comment').addClass("ql-active") : $('#btn_comment').removeClass("ql-active")
-        this.commentClicked = clicked;
+            // if (clicked)
+            quillRef.format('em', clicked);
+        }
     }
 
     prevComment() {
@@ -248,6 +244,26 @@ class ViewerComponent extends React.Component {
             let comment = this.state.commentsArray[this.state.commentPointer + 1]
             this.reactQuillRef.getEditor().setSelection(comment.position, 0);
             this.setState({ commentPointer: this.state.commentPointer + 1 })
+        }
+    }
+
+    onCursorChange(quillRef, args) {
+        if (!args[0] || !args[1]) return;
+        let destinationEndFormat = quillRef.getFormat(args[0].index, 1);
+        let destinationStartFormat = quillRef.getFormat(args[0].index == 0 ? 0 : args[0].index - 1, 1);
+        let originStartFormat = quillRef.getFormat(args[1].index, 1);
+        let originEndFormat = quillRef.getFormat(args[1].index - 1, 1);
+        if (!(destinationStartFormat['em'] || destinationEndFormat['em'])) {
+
+            /* fix comment behavior */
+
+            // if (!(originStartFormat['em'] || originEndFormat['em'])) {
+            //     this.keepChecking = false;
+            //     args[1].index == 1 ? quillRef.deleteText(0, 2) : quillRef.deleteText(args[1].index - 3, 2);
+            // }
+            quillRef.enable(false);
+            this.commentClicked = false;
+            $('#btn_comment').removeClass("ql-active")
         }
     }
 

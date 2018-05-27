@@ -10,8 +10,7 @@ function getInitParams() {
         .then(response => {
             return Promise.resolve(response.data);
         }).catch(error => {
-            console.log('Error fatching data')
-            return Promise.reject([]);
+            return Promise.reject(error);
         });
 
 }

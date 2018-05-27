@@ -18,9 +18,12 @@ class App extends React.Component {
     }
 
     componentWillMount() {
-        appService_del.getInitParams().then(response => {
+        appService_del.getInitParams()
+        .then(response => {
             sessionStorage.setItem('initData', JSON.stringify(response));
             this.setState({userSet:true});
+        }).catch(error => {
+            console.log(error.message)        
         });
     }
 

@@ -9,14 +9,11 @@ function displayCurrentSelection(selected) {
     return dispatch => {
         dispatch(setCurrentView({ selected }));
         viewService_del.getView(selected)
-            .then(
-                response => {
-                    return 'good';
-                },
-                error => {
-                    return 'bad';
-                }
-            );
+            .then(response => {
+                return 'good';
+            }).catch(error => {
+                console.log(error.message)
+            })
     };
     function setCurrentView(selected) {
         if (selected)
