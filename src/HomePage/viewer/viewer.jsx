@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import ReactQuill from 'react-quill';
+import { homeAction, viewActions, loaderActions } from '../../_actions';
 import { viewService_del } from '../../_services';
 import { viewerConstants, ViewerCustomButtons } from '../../_constants';
 import { ShowAllComments } from '../../Models';
@@ -17,27 +18,10 @@ class ViewerComponent extends React.Component {
         super(props)
         this.state = {
             commentsModelOpen: false,
-            text: `componentDidUpdate(prevProps, prevState, snapshot) {
-                let prevView = prevState.viewMode == undefined ? false : prevState.viewMode;
-                let quillRef = this.reactQuillRef.getEditor();
-                if (!this.state.viewMode == prevView) {
-                    this.reactQuillRef.getEditor().enable(false);
-                    $(".ql-tooltip").remove();
-                    if (!this.state.viewMode)
-                        this.updateToolBar()  
-                        
-                        fg
-                        fgh
-                        \n
-
-                        fgh
-                        fgh
-
-                `
-            ,
+            text: "",
             nodeSelected: "",
             viewMode: true,
-            content: Delta,
+            content: {},
             lastPosition: 0,
             saved: false,
             saveTrigger: 0,
@@ -131,6 +115,13 @@ class ViewerComponent extends React.Component {
 
     /* Invoke once after component render method finishes */
     componentDidMount() {
+        let quillRef = this.reactQuillRef.getEditor()
+        // get init text from db
+        let user = homeAction.getUser();
+        viewActions.getText(user).then((dataContent) => {
+            quillRef.setContents(dataContent, "api");
+            this.props.dispatch(loaderActions.show(false));
+        })
         this.bindLinkToScrollFun();
         this.reactQuillRef.getEditor().enable(false);
         document.addEventListener('contextmenu', event => event.preventDefault());
@@ -138,8 +129,12 @@ class ViewerComponent extends React.Component {
 
     save() {
         let quill = this.reactQuillRef.getEditor();
-        let delta = quill.getContents();
-        viewService_del.save(delta);
+        let delta = quill.getContents();    
+        let user = homeAction.getUser();
+        this.props.dispatch(loaderActions.show(true));
+        viewActions.saveText(delta, user).then(response => {
+            this.props.dispatch(loaderActions.show(false));
+        });
         let range = quill.getSelection();
         this.setState({ lastPosition: range != null ? range.index : 0 });
 
@@ -218,7 +213,7 @@ class ViewerComponent extends React.Component {
                 quillRef.insertText(range.index, '\n');
                 quillRef.setSelection(range.index + 1, 0);
             }
-            
+
             !this.commentClicked ? $('#btn_comment').addClass("ql-active") : $('#btn_comment').removeClass("ql-active")
             this.commentClicked = this.keepChecking = clicked;
 
@@ -290,8 +285,7 @@ class ViewerComponent extends React.Component {
                     style={{ height: height }}
                     placeholder={placeholder}
                     modules={viewerConstants.EDITOR[modules]}
-                    formats={viewerConstants.EDITOR.formats}
-                    value={this.state.text}
+                    formats={viewerConstants.EDITOR.formats}   
                     onChange={add.onChange}
                     theme={"snow"}
                 />
@@ -319,13 +313,13 @@ class ViewerComponent extends React.Component {
 }
 
 function mapStateToProps(state) {
-    const { tree, navBar, editorView } = state;
+    const { tree, navBar, view } = state;
     const selectedTreeNode = tree.selected || 0;
     const treeTriggered = tree.nodeTriggered
     const toggleNode = tree.toggleNode
-    const viewMode = editorView.viewMode;
-    const saveTrigger = editorView.saveTrigger
-    const commentsArray = editorView.comments
+    const viewMode = view.viewMode;
+    const saveTrigger = view.saveTrigger
+    const commentsArray = view.comments
     return {
         selectedTreeNode,
         viewMode,

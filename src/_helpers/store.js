@@ -4,13 +4,16 @@ import { createLogger } from 'redux-logger';
 import rootReducer from '../_reducers';
 
 const loggerMiddleware = createLogger();
-const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+
+// Enable this to mork with chrome ReduxDev tool
+// const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
 export const store = createStore(
     rootReducer,
-    composeEnhancers(
+    //composeEnhancers(
     applyMiddleware(
         thunkMiddleware,
         loggerMiddleware
-    ))
+    )
+    //)
 );

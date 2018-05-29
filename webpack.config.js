@@ -1,5 +1,13 @@
 var path = require('path');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
+
+// HTML plugin options
+let htmlOptions = {
+    template: './src/index.html',
+    filename: 'index.html',
+    inject: 'body'
+  }
 
 module.exports = {
     entry: './src/index.jsx',
@@ -27,11 +35,10 @@ module.exports = {
         ]
     },
     devtool: 'source-map',
-    plugins: [new HtmlWebpackPlugin({
-        template: './src/index.html',
-        filename: 'index.html',
-        inject: 'body'
-    })],
+    plugins: [
+        new HtmlWebpackPlugin(htmlOptions),
+        new CleanWebpackPlugin(['dist']),
+    ],
     devServer: {
         historyApiFallback: true
     }

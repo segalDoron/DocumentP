@@ -1,6 +1,6 @@
 import { editorViewConstants } from '../_constants';
 
-export function editorView(state = {}, action) {
+export function view(state = {}, action) {
   switch (action.type) {
     case editorViewConstants.CURRENT_SELECTION:
       return {

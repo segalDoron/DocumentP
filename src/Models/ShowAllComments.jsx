@@ -102,7 +102,7 @@ class ShowAllCommentsComponent extends React.Component {
 }
 
 function mapStateToProps(state) {
-    const commentsArray = state.editorView.comments
+    const commentsArray = state.view.comments
     return {
         commentsArray
     };

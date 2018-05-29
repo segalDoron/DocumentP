@@ -1,74 +1,11 @@
 
 import React from 'react';
 import { connect } from 'react-redux';
-import { treeActions } from '../../_actions';
+import { treeActions, homeAction } from '../../_actions';
 import { Treebeard, decorators } from '../../_addaptedLibs/react-treebeard'
 import * as filters from '../../_services/tree/treeSearchFilter';
 
 import $ from 'jquery';
-
-
-// Create tree fake date
-const data = [
-  {
-    name: 'h1-0',
-    order: 1,
-    toggled: true,
-    children: [
-      {
-        name: 'h2-0-0',
-        order: 2,
-        children: [
-          { name: 'h3-0-0-0', order: 3, children: [{ name: 'h4-0-0-0-0', order: 4, }] },
-          { name: 'h3-0-0-1', order: 3, children: [{ name: 'h4-0-0-0-1', order: 4, }] }
-        ]
-      },
-      {
-        name: 'h2-0-1',
-        loading: true,
-        order: 2,
-        children: []
-      },
-      {
-        name: 'h2-0-2',
-        order: 2,
-        children: [
-          { name: 'h3-0-2-0', order: 3, children: [{ name: 'h4-0-2-0-0', order: 4, }] }
-        ]
-      }
-    ]
-  },
-  {
-    name: 'h1-1',
-    toggled: true,
-    order: 1,
-    children: [
-      {
-        name: 'h2-1-0',
-        order: 2,
-        children: [
-          { name: 'h3-1-0-0', order: 3, children: [{ name: 'h4-1-0-0-0', order: 4, }] },
-          { name: 'h3-1-0-1', order: 3, children: [{ name: 'h4-1-0-0-1', order: 4 }] }
-        ]
-      },
-      {
-        name: 'h2-1-1',
-        order: 2,
-        loading: true,
-        children: []
-      },
-      {
-        name: 'h2-1-2',
-        order: 2,
-        children: [
-          { name: 'h3-1-2-0', order: 3, children: [{ name: 'h4-1-2-0-0', order: 4 }, { name: 'h4-1-2-0-1', order: 4 }] }
-        ]
-      }
-    ]
-  }
-]
-
-
 
 /*Example: Customising The Header Decorator To Include Icons
   decorators.Header = ({ node }) => {
@@ -109,7 +46,7 @@ class TreeComponent extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = { treeData: data, treeFiltered: data, trigger: 0 };
+    this.state = { treeData: [], treeFiltered: [], trigger: 0 };
     this.onToggle = this.onToggle.bind(this);
     this.createTree = this.createTree.bind(this);
     this.indentTree = this.indentTree.bind(this);
@@ -121,6 +58,11 @@ class TreeComponent extends React.Component {
       const data = nextProps.data;
       this.setState({ treeData: data, treeFiltered: data })
     }
+  }
+
+  componentWillMount() {
+    let user = homeAction.getUser();
+    this.props.dispatch(treeActions.getTree(user));
   }
 
   componentDidUpdate() {

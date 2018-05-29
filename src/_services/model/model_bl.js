@@ -14,6 +14,6 @@ function set(data, response) {
     data.forEach(element => {
         if (element.name != "")
             response.push({ name: element.name, order: element.order, position: element.position })
-        if (element.children.length > 0) set(element.children, response)
+        if (element.children && element.children.length > 0) set(element.children, response)
     });
 }

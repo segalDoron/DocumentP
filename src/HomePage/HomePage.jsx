@@ -1,13 +1,10 @@
 import React from 'react';
-import { connect } from 'react-redux';
-import { homeAction } from '../_actions'
-import { NBarComponent } from './navBar/navBar';
-import { TreeComponent } from './tree/tree';
-import { Loader } from '../_components';
-import { homeConstants } from '../_constants'
-import { EditorViewComponent } from './editorView/editorView';
-import { ViewerComponent } from './viewer/viewer';
 import { ReactDOM } from 'react-dom';
+import { connect } from 'react-redux';
+import { homeAction, loaderActions } from '../_actions'
+import { homeConstants } from '../_constants';
+import { Loader } from '../_components';
+import { EditorViewComponent, ViewerComponent, NBarComponent, TreeComponent, } from './index';
 
 import { Button } from 'reactstrap';
 
@@ -16,18 +13,25 @@ class HomePage extends React.Component {
     constructor() {
         super();
         this.state = {
+            loading: true,
             editorMode: false,
             viewerMode: true,
         };
         this.click = this.click.bind(this);
     }
-    componentWillReceiveProps(nextProps, nextState) {
-        let user = homeAction.getUser();
-        if (user != null && user.role) {
-            user.role == homeConstants.EDITOR ?
-                this.setState({ editorMode: true, viewerMode: false }) :
-                this.setState({ editorMode: false, viewerMode: true });
-        }
+
+    componentDidMount() {
+        this.props.dispatch(loaderActions.show(true));
+        homeAction.getInitParams()
+            .then(response => {
+                let user = response;
+                if (user != null && user.role) {
+                    user.role == homeConstants.EDITOR ?
+                        this.setState({ editorMode: true, viewerMode: false, loading: false }) :
+                        this.setState({ editorMode: false, viewerMode: true, loading: false });
+                    this.props.dispatch(homeAction.getComment(user));
+                }
+            });
     }
 
     click() {
@@ -36,25 +40,36 @@ class HomePage extends React.Component {
 
     render() {
         const { editorMode, viewerMode } = this.state
+        const loading = this.state.loading;
         return (
             <div>
                 <Loader />
-                <div>
-                    <NBarComponent />
-                    <Button color="danger" style={{ margin: '7px 0 0 17.5%' }} onClick={this.click}>change user permission</Button>{' '}
-                    <div className="container-fluid">
-                        <div className="row">
-                            <TreeComponent />
-                            {editorMode &&
-                                <EditorViewComponent />
-                            }
-                            {
-                                viewerMode &&
-                                <ViewerComponent />
-                            }
+                {
+                    loading && <div style={{ margin: '20px 0 0 20px' }}> Loading...</div>
+                }
+                {
+                    !loading &&
+                    <div>
+                        <NBarComponent />
+                        
+                            {/* for debug, switch between users permissions */}
+                            {/* <Button color="danger" style={{ margin: '7px 0 0 17.5%' }} onClick={this.click}>change user permission</Button>{' '} */}
+                       
+                        
+                        <div className="container-fluid">
+                            <div className="row">
+                                <TreeComponent />
+                                {editorMode &&
+                                    <EditorViewComponent />
+                                }
+                                {
+                                    viewerMode &&
+                                    <ViewerComponent />
+                                }
+                            </div>
                         </div>
                     </div>
-                </div>
+                }
             </div >
         );
     }

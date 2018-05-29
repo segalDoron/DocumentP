@@ -5,8 +5,7 @@ import treeNode from '../../_helpers/treeNode'
 export const treeService_bl = {
     setTree,
 };
-function setTree(editorHtml, hasHeaders, hasComments) {
-    const loggedUser = JSON.parse(sessionStorage.getItem('initData'));
+function setTree(editorHtml, hasHeaders, hasComments,user) {   
     let counter = { counter: 0 };
     let newChild = new treeNode();
     let lastHeaderOrder = -1;
@@ -51,10 +50,10 @@ function setTree(editorHtml, hasHeaders, hasComments) {
                 if (element.children.length > 0 && element.children[0].hasAttribute('id'))
                     // one in a paragraph
                     if (element.children.length == 1)
-                        addToCommentToArray(element, counter, lastComment, commentsData, loggedUser)
+                        addToCommentToArray(element, counter, lastComment, commentsData, user)
                     // more then one in the same paragraph
                     else
-                        addParagraphChildrenComments(element, counter, commentsData, loggedUser)
+                        addParagraphChildrenComments(element, counter, commentsData, user)
 
                 // is element is empty br tag
                 else

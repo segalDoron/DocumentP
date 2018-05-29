@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import ReactQuill from 'react-quill';
-import { viewService_del } from '../../_services';
+import { homeAction, viewActions, loaderActions } from '../../_actions';
 import { editorViewConstants, EditorCustomButtons } from '../../_constants';
 import { SelectLinkModel, SelectPicModel, ShowAllComments } from '../../Models';
 import { EmphBlot } from '../../_helpers/quill_blot';
@@ -22,7 +22,7 @@ class EditorViewComponent extends React.Component {
             text: "",
             nodeSelected: "",
             viewMode: true,
-            content: Delta,
+            content: {},
             lastPosition: 0,
             saved: false,
             saveTrigger: 0,
@@ -103,21 +103,28 @@ class EditorViewComponent extends React.Component {
         quillRef = null;
     }
 
-    // upload data before the components upload
-    componentWillMount() {
-
-    }
-
     /* Invoke once after component render method finishes */
     componentDidMount() {
+        let quillRef = this.reactQuillRef.getEditor()
+        // get init text from db
+        let user = homeAction.getUser();
+        viewActions.getText(user).then((dataContent) => {
+            quillRef.setContents(dataContent, "api");
+            this.props.dispatch(loaderActions.show(false));
+        })
+
         this.bindLinkToScrollFun();
-        this.reactQuillRef.getEditor().enable(!this.state.viewMode);
+        quillRef.enable(!this.state.viewMode);
     }
 
     save() {
         let quill = this.reactQuillRef.getEditor();
         let delta = quill.getContents();
-        viewService_del.save(delta);
+        let user = homeAction.getUser();
+        this.props.dispatch(loaderActions.show(true));
+        viewActions.saveText(delta, user).then(response => {
+            this.props.dispatch(loaderActions.show(false));
+        });
         let range = quill.getSelection();
         this.setState({ lastPosition: range != null ? range.index : 0 });
 
@@ -246,7 +253,6 @@ class EditorViewComponent extends React.Component {
                     placeholder={placeholder}
                     modules={editorViewConstants.EDITOR[modules]}
                     formats={editorViewConstants.EDITOR.formats}
-                    value={this.state.text}
                     onChange={add.onChange}
                     theme={"snow"}
                 />
@@ -276,13 +282,13 @@ class EditorViewComponent extends React.Component {
 }
 
 function mapStateToProps(state) {
-    const { tree, navBar, editorView } = state;
+    const { tree, navBar, view } = state;
     const selectedTreeNode = tree.selected || 0;
     const treeTriggered = tree.nodeTriggered
     const toggleNode = tree.toggleNode
-    const viewMode = editorView.viewMode;
-    const saveTrigger = editorView.saveTrigger
-    const commentsArray = editorView.comments
+    const viewMode = view.viewMode;
+    const saveTrigger = view.saveTrigger
+    const commentsArray = view.comments
     return {
         selectedTreeNode,
         viewMode,
