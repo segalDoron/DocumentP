@@ -5,7 +5,8 @@ import $ from 'jquery';
 export const navBarActions = {
     changeViewState,
     getUser,
-    save
+    save,
+    print
 };
 
 function getUser() {
@@ -35,17 +36,17 @@ function save(clickE, user) {
                                 dispatch(saveView(clickE, response.comments));
                                 dispatch(showLoader(false));
                             }).catch((error) => {
-                                alertError(error);                                
+                                alertError(error);
                                 dispatch(showLoader(false));
                             })
                     }).catch((error) => {
-                        alertError(error);                        
+                        alertError(error);
                         dispatch(showLoader(false));
                     })
 
             },
             error => {
-                alertError(error);         
+                alertError(error);
                 dispatch(showLoader(false));
             }
         );
@@ -55,8 +56,31 @@ function save(clickE, user) {
     }
 }
 
-function alertError(error){
+function alertError(error) {
     console.log(error.message)
     // can invoke different messages for different errors
     alert("Error while trying to save");
 }
+
+
+function print() {
+    let style = `
+    <style type="text/css">
+        @page {
+            margin: 25mm 25mm 25mm 25mm;
+        }
+    </style>`;
+
+    let html = $(".ql-editor").html();
+
+    var printWindow = window.open();
+    printWindow.document.open('text/plain');
+    printWindow.document.write(style + html);
+    setTimeout(() => {
+        printWindow.document.close();
+        printWindow.focus();
+        printWindow.print();
+        printWindow.close();
+    }, 500);
+}
+
