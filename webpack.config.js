@@ -6,7 +6,8 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 let htmlOptions = {
     template: './src/index.html',
     filename: 'index.html',
-    inject: 'body'
+    inject: 'body',
+    favicon: './src/public/favicon.ico'
   }
 
 module.exports = {
@@ -32,6 +33,10 @@ module.exports = {
                 test: /\.css$/,
                 use: ['style-loader', 'css-loader']
             },
+            {
+                test: /\.jpe?g$|\.ico$|\.gif$|\.png$|\.svg$|\.woff$|\.ttf$|\.wav$|\.mp3$/,
+                loader: 'file-loader?name=[name].[ext]'  // <-- retain original file name
+            }
         ]
     },
     devtool: 'source-map',
