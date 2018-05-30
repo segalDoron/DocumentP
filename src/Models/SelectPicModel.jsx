@@ -53,7 +53,7 @@ class SelectPicModelComponent extends React.Component {
                     this.props.toggle("ADD_IMG")
                 })
                 .catch(error => {
-                    this.toggleNested(error.message);
+                    this.toggleNested(error);
                 })
         }
         else this.toggleNested("Please Add a file first");
